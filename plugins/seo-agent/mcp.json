@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "seo-agent": {
+      "type": "http",
+      "url": "${SEO_AGENT_MCP_URL:-http://localhost:3010/mcp}",
+      "headers": {
+        "Authorization": "${SEO_AGENT_MCP_AUTH:-}"
+      }
+    }
+  }
+}

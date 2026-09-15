@@ -1,0 +1,25 @@
+{
+  "name": "seo-agent",
+  "version": "1.0.0",
+  "description": "SEO made simple. Research keywords and competitors, audit sites, track rankings, and use Search Console data from your agent.",
+  "author": {
+    "name": "S.E.O Agent",
+    "url": "https://github.com/ahmadaimee/seo-agent"
+  },
+  "homepage": "https://github.com/ahmadaimee/seo-agent",
+  "repository": "https://github.com/ahmadaimee/seo-agent",
+  "license": "MIT",
+  "keywords": [
+    "seo",
+    "keyword-research",
+    "competitor-research",
+    "site-audit",
+    "backlinks",
+    "search-console",
+    "rank-tracking",
+    "local-seo"
+  ],
+  "logo": "https://raw.githubusercontent.com/ahmadaimee/seo-agent/main/public/transparent-logo.png",
+  "skills": "skills",
+  "mcpServers": "mcp.json"
+}

@@ -1,0 +1,49 @@
+{
+  "name": "seo-agent",
+  "version": "1.0.0",
+  "description": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+  "author": {
+    "name": "S.E.O Agent",
+    "url": "https://github.com/ahmadaimee/seo-agent"
+  },
+  "homepage": "https://github.com/ahmadaimee/seo-agent",
+  "repository": "https://github.com/ahmadaimee/seo-agent",
+  "license": "MIT",
+  "keywords": [
+    "seo",
+    "keyword-research",
+    "serp",
+    "site-audit",
+    "backlinks",
+    "search-console",
+    "rank-tracking",
+    "local-seo"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "seo-agent": {
+      "url": "${SEO_AGENT_MCP_URL:-http://localhost:3010/mcp}",
+      "headers": {
+        "Authorization": "${SEO_AGENT_MCP_AUTH:-}"
+      }
+    }
+  },
+  "interface": {
+    "displayName": "S.E.O Agent",
+    "shortDescription": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+    "longDescription": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+    "developerName": "S.E.O Agent",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/ahmadaimee/seo-agent",
+    "privacyPolicyURL": "https://github.com/ahmadaimee/seo-agent/privacy",
+    "termsOfServiceURL": "https://github.com/ahmadaimee/seo-agent/terms-and-conditions",
+    "defaultPrompt": [
+      "Research keywords for my site and shortlist the best opportunities.",
+      "Audit my site and give me a one-page report with a single next action.",
+      "Track my rankings for these keywords and summarize what changed."
+    ]
+  }
+}

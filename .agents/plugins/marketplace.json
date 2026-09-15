@@ -1,0 +1,16 @@
+{
+  "name": "seo-agent",
+  "owner": {
+    "name": "S.E.O Agent",
+    "url": "https://github.com/ahmadaimee/seo-agent"
+  },
+  "description": "S.E.O Agent's Claude Code plugin marketplace (self-hosted, free).",
+  "plugins": [
+    {
+      "name": "seo-agent",
+      "source": "./plugins/seo-agent",
+      "description": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+      "category": "Productivity"
+    }
+  ]
+}

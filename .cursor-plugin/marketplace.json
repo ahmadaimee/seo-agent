@@ -1,0 +1,18 @@
+{
+  "name": "seo-agent",
+  "owner": {
+    "name": "S.E.O Agent",
+    "url": "https://github.com/ahmadaimee/seo-agent"
+  },
+  "metadata": {
+    "description": "S.E.O Agent's official Cursor plugin marketplace."
+  },
+  "plugins": [
+    {
+      "name": "seo-agent",
+      "source": "plugins/seo-agent",
+      "description": "SEO made simple. Research keywords and competitors, audit sites, track rankings, and use Search Console data from your agent."
+    }
+  ],
+  "description": "S.E.O Agent's Claude Code plugin marketplace (self-hosted, free)."
+}
