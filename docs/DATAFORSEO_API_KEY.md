@@ -14,6 +14,6 @@ New DataForSEO accounts include $1 of free credit to test with, and the minimum 
 
 Set the value as `DATAFORSEO_API_KEY`:
 
-- **Docker self-hosting:** in `.env` (see [`SELF_HOSTING_DOCKER.md`](./SELF_HOSTING_DOCKER.md)).
+- **Railway self-hosting:** as a service variable (see [`SELF_HOSTING_RAILWAY.md`](./SELF_HOSTING_RAILWAY.md)).
 - **Cloudflare self-hosting:** in `.env.selfhost` (see [`SELF_HOSTING_CLOUDFLARE.md`](./SELF_HOSTING_CLOUDFLARE.md)). Legacy button/Wrangler deployments: as a Worker secret in the dashboard under `Settings` -> `Variables & Secrets`.
 - **Local development:** in `.env.local` (see [`LOCAL_DEVELOPMENT.md`](./LOCAL_DEVELOPMENT.md)).

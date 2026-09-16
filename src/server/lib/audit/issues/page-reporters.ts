@@ -31,6 +31,54 @@ const META_DESCRIPTION_MIN_CHARS = 70;
 const THIN_CONTENT_WORDS = 150;
 const SLOW_RESPONSE_MS = 1500;
 const DEEP_PAGE_DEPTH = 5;
+/**
+ * Facebook, LinkedIn and X all reject preview images below 200x200 and fall
+ * back to a text-only card. Only checked when the page declares
+ * og:image:width/height — the crawler never downloads the image to measure it.
+ */
+const OG_IMAGE_MIN_PX = 200;
+
+/**
+ * The Open Graph protocol requires og:image to be an absolute URL. Scrapers
+ * do not resolve relative paths, and protocol-relative "//host/path" values
+ * fail on several of them too, so both are reported.
+ */
+function isAbsoluteHttpUrl(value: string): boolean {
+  const lowered = value.trim().toLowerCase();
+  return lowered.startsWith("http://") || lowered.startsWith("https://");
+}
+
+/**
+ * Open Graph checks, entirely from the page's own markup: whether a preview
+ * image is declared, whether its URL is one a scraper can resolve, and whether
+ * the size the page advertises clears the platform minimum. Whether the image
+ * actually loads is checked once per distinct URL in the site-level checks.
+ */
+function reportSocialPreview(page: CrawledPageResult): DetectedIssue[] {
+  const issues: DetectedIssue[] = [];
+  const report = (
+    issueType: AuditIssueType,
+    details?: Record<string, unknown>,
+  ) => issues.push({ issueType, pageId: page.id, pageUrl: page.url, details });
+
+  const ogImage = page.ogImage?.trim();
+  if (!ogImage && !page.twitterImage?.trim()) {
+    if (page.isIndexable) report("missing-og-image");
+  } else if (ogImage && !isAbsoluteHttpUrl(ogImage)) {
+    report("og-image-relative-url", { ogImage });
+  }
+
+  const { ogImageWidth: width, ogImageHeight: height } = page;
+  if (
+    width !== null &&
+    height !== null &&
+    (width < OG_IMAGE_MIN_PX || height < OG_IMAGE_MIN_PX)
+  ) {
+    report("og-image-too-small", { width, height });
+  }
+
+  return issues;
+}
 
 function hasHeadingLevelSkip(headingOrder: number[]): boolean {
   for (let i = 1; i < headingOrder.length; i++) {
@@ -145,6 +193,8 @@ export function runPageReporters(page: CrawledPageResult): DetectedIssue[] {
       imagesTotal: page.imagesTotal,
     });
   }
+
+  issues.push(...reportSocialPreview(page));
 
   // Structure
   if (page.isIndexable && page.links.length === 0) {

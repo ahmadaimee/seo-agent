@@ -42,6 +42,16 @@ export const DB_STEP: WorkflowStepConfig = {
   timeout: "2 minutes",
 };
 
+/**
+ * Site-level file probes (robots.txt, sitemap, favicon, llms.txt, og:image).
+ * A couple of dozen small reads against a site that may be slow or hostile;
+ * every one of them is a read, so retrying the step is free.
+ */
+export const SITE_CHECKS_STEP: WorkflowStepConfig = {
+  retries: { limit: 2, delay: "5 seconds", backoff: "exponential" },
+  timeout: "3 minutes",
+};
+
 /** Cross-page checks read every page row of the audit — allow more time. */
 export const MULTIPAGE_CHECKS_STEP: WorkflowStepConfig = {
   retries: { limit: 2, delay: "5 seconds", backoff: "exponential" },

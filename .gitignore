@@ -46,6 +46,8 @@ dist-sourcemaps/
 .alchemy/
 .railway-basic-auth.local
 
+# Local agent handoff scratch (not part of the project).
+.relaydesk/
 # Python (bundled plugin toolchain)
 __pycache__/
 *.py[cod]

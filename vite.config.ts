@@ -15,10 +15,16 @@ export default defineConfig(({ mode }) => {
       ? Number(env.PORT)
       : 3001;
   const showDevtools = env.VITE_SHOW_DEVTOOLS !== "false";
+  // ALLOWED_HOST accepts a comma-separated list. A custom-domain cutover needs
+  // two hostnames live at once — the platform subdomain that is already
+  // serving and the new domain being pointed at it — and vite's preview server
+  // rejects any Host header it was not given.
   const allowedHosts = [
-    env.ALLOWED_HOST,
+    ...(env.ALLOWED_HOST?.split(",") ?? []),
     env.BETTER_AUTH_URL ? new URL(env.BETTER_AUTH_URL).hostname : undefined,
-  ].filter((host): host is string => Boolean(host));
+  ]
+    .map((host) => host?.trim())
+    .filter((host): host is string => Boolean(host));
   const emitSourcemaps = env.POSTHOG_SOURCEMAPS === "true";
 
   return {

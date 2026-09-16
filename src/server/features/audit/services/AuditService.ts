@@ -12,6 +12,13 @@ import {
   getEstimatedAuditCapacity,
   type AuditLimitTier,
 } from "@/server/features/audit/services/audit-capacity";
+import {
+  generateShareToken,
+  hashSharePassword,
+  issueViewToken,
+  verifySharePassword,
+  verifyViewToken,
+} from "@/server/features/audit/services/auditShare";
 import { AppError } from "@/server/lib/errors";
 import { AuditProgressKV } from "@/server/lib/audit/progress-kv";
 import {
@@ -196,6 +203,178 @@ async function getResults(auditId: string, projectId: string) {
   };
 }
 
+/** The share state the results page shows beside its share button. */
+async function getShareState(auditId: string, projectId: string) {
+  const audit = await AuditRepository.getAuditForProject(auditId, projectId);
+  if (!audit) throw new AppError("NOT_FOUND");
+  return {
+    shareToken: audit.shareToken,
+    hasPassword: audit.sharePasswordHash !== null,
+    sharedAt: audit.shareCreatedAt,
+  };
+}
+
+/**
+ * Mint (or replace) an audit's share link. Always issues a fresh token, so
+ * "create a new link" is also how a user retires one they sent to the wrong
+ * person.
+ */
+async function createShareLink(input: {
+  auditId: string;
+  projectId: string;
+  password?: string | null;
+}) {
+  const audit = await AuditRepository.getAuditForProject(
+    input.auditId,
+    input.projectId,
+  );
+  if (!audit) throw new AppError("NOT_FOUND");
+  if (audit.status === "running") {
+    throw new AppError(
+      "CONFLICT",
+      "Wait for the audit to finish before sharing it.",
+    );
+  }
+
+  const password = input.password?.trim();
+  const shareToken = generateShareToken();
+  const share = {
+    shareToken,
+    sharePasswordHash: password ? await hashSharePassword(password) : null,
+    shareCreatedAt: new Date().toISOString(),
+  };
+  await AuditRepository.setAuditShare(input.auditId, input.projectId, share);
+
+  return {
+    shareToken,
+    hasPassword: share.sharePasswordHash !== null,
+    sharedAt: share.shareCreatedAt,
+  };
+}
+
+async function revokeShareLink(auditId: string, projectId: string) {
+  const audit = await AuditRepository.getAuditForProject(auditId, projectId);
+  if (!audit) throw new AppError("NOT_FOUND");
+  await AuditRepository.setAuditShare(auditId, projectId, {
+    shareToken: null,
+    sharePasswordHash: null,
+    shareCreatedAt: null,
+  });
+}
+
+type SharedReportResult =
+  | { state: "not-found" }
+  | { state: "password-required"; wrongPassword: boolean }
+  | {
+      state: "ok";
+      viewToken: string | null;
+      report: Awaited<ReturnType<typeof buildSharedReport>>;
+    };
+
+/**
+ * Resolve a share link into its report. Unauthenticated by design — the token
+ * is the credential — so it never takes a project id and never reveals whether
+ * a token exists beyond "not found".
+ */
+async function getSharedReport(input: {
+  shareToken: string;
+  password?: string | null;
+  viewToken?: string | null;
+}): Promise<SharedReportResult> {
+  const audit = await AuditRepository.getAuditByShareToken(input.shareToken);
+  // A revoked link clears the token, so this also covers "used to work".
+  if (!audit?.shareToken) return { state: "not-found" };
+
+  if (!audit.sharePasswordHash) {
+    return {
+      state: "ok",
+      viewToken: null,
+      report: await buildSharedReport(audit),
+    };
+  }
+
+  const unlocked =
+    (input.viewToken
+      ? await verifyViewToken(
+          input.viewToken,
+          audit.shareToken,
+          audit.sharePasswordHash,
+        )
+      : false) ||
+    (input.password
+      ? await verifySharePassword(input.password, audit.sharePasswordHash)
+      : false);
+
+  if (!unlocked) {
+    return {
+      state: "password-required",
+      // Distinguishes "type a password" from "that password was wrong"
+      // without telling an unprompted visitor anything either way.
+      wrongPassword: Boolean(input.password),
+    };
+  }
+
+  return {
+    state: "ok",
+    viewToken: await issueViewToken(audit.shareToken, audit.sharePasswordHash),
+    report: await buildSharedReport(audit),
+  };
+}
+
+type ShareableAudit = NonNullable<
+  Awaited<ReturnType<typeof AuditRepository.getAuditByShareToken>>
+>;
+
+async function buildSharedReport(audit: ShareableAudit) {
+  const { pages, lighthouse, issues } =
+    await AuditRepository.getAuditResultsById(audit.id);
+
+  return {
+    // R2 keys embed the project and audit ids and are an internal storage
+    // detail; the report only needs to know a screenshot exists, and fetches
+    // it back through the share-authorized endpoint.
+    lighthouse: lighthouse.map(
+      ({ r2Key: _r2Key, screenshotR2Key, ...row }) => ({
+        ...row,
+        hasScreenshot: screenshotR2Key !== null,
+      }),
+    ),
+    audit: {
+      id: audit.id,
+      startUrl: audit.startUrl,
+      status: audit.status,
+      pagesCrawled: audit.pagesCrawled,
+      pagesTotal: audit.pagesTotal,
+      startedAt: audit.startedAt,
+      completedAt: audit.completedAt,
+      config: parseAuditConfig(audit.config),
+    },
+    pages,
+    issues,
+  };
+}
+
+/**
+ * Whether a share token (plus, when the link has a password, a live view
+ * token) authorizes reading this audit's assets. Screenshots are fetched by
+ * the browser, which cannot carry the password.
+ */
+async function authorizeSharedAsset(input: {
+  shareToken: string;
+  viewToken?: string | null;
+}): Promise<{ auditId: string } | null> {
+  const audit = await AuditRepository.getAuditByShareToken(input.shareToken);
+  if (!audit?.shareToken) return null;
+  if (!audit.sharePasswordHash) return { auditId: audit.id };
+  if (!input.viewToken) return null;
+  const valid = await verifyViewToken(
+    input.viewToken,
+    audit.shareToken,
+    audit.sharePasswordHash,
+  );
+  return valid ? { auditId: audit.id } : null;
+}
+
 async function getHistory(projectId: string) {
   const auditList = await AuditRepository.getAuditsByProject(projectId);
 
@@ -282,6 +461,11 @@ export const AuditService = {
   getStatus,
   getCrawlProgress,
   getResults,
+  getShareState,
+  createShareLink,
+  revokeShareLink,
+  getSharedReport,
+  authorizeSharedAsset,
   getHistory,
   remove,
 } as const;

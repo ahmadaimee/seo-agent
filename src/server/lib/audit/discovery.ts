@@ -33,22 +33,36 @@ export interface RobotsResult {
 }
 
 /**
- * Fetch the raw robots.txt body (null = missing/unreachable). Kept separate
- * from parsing so Workflows can checkpoint the text as durable step state and
- * re-derive the parsed result deterministically on replay.
+ * Fetch the raw robots.txt body (null text = missing/unreachable). Kept
+ * separate from parsing so Workflows can checkpoint the text as durable step
+ * state and re-derive the parsed result deterministically on replay.
+ *
+ * The status travels with the text because the two failure modes mean
+ * opposite things to a search engine: a 404 means "no restrictions", while a
+ * 5xx makes Google stop crawling the site for 12 hours.
  */
-async function fetchRobotsTxtText(origin: string): Promise<string | null> {
+async function fetchRobotsTxt(
+  origin: string,
+): Promise<{ text: string | null; status: number }> {
   try {
     const response = await fetch(`${origin}/robots.txt`, {
       headers: { "User-Agent": "SEOAgent-Audit/1.0" },
       signal: AbortSignal.timeout(10_000),
     });
 
-    if (!response.ok) return null;
-    return (await response.text()).slice(0, MAX_ROBOTS_TXT_BYTES);
+    if (!response.ok) {
+      await response.body?.cancel();
+      return { text: null, status: response.status };
+    }
+    return {
+      text: (await response.text()).slice(0, MAX_ROBOTS_TXT_BYTES),
+      status: response.status,
+    };
   } catch (error) {
     console.warn("Failed to fetch robots.txt:", error);
-    return null;
+    // 0 stands for "never answered" — a timeout, DNS failure or reset. Like a
+    // 5xx, it is an availability failure rather than a deliberate 404.
+    return { text: null, status: 0 };
   }
 }
 
@@ -226,8 +240,16 @@ async function fetchSitemapDocumentWithRetry(sitemapUrl: string): Promise<{
 export async function discoverUrls(
   origin: string,
   maxPages = 50,
-): Promise<{ urls: string[]; robotsText: string | null }> {
-  const robotsText = await fetchRobotsTxtText(origin);
+): Promise<{
+  urls: string[];
+  robotsText: string | null;
+  /** HTTP status of /robots.txt; 0 when the request never completed. */
+  robotsStatus: number;
+  /** True once any sitemap document parsed into URLs or nested sitemaps. */
+  sitemapFound: boolean;
+}> {
+  const { text: robotsText, status: robotsStatus } =
+    await fetchRobotsTxt(origin);
   const robots = parseRobotsTxt(origin, robotsText);
 
   // Collect sitemap URLs: from robots.txt + default location
@@ -245,6 +267,7 @@ export async function discoverUrls(
     .filter((url) => isSameOrigin(url, origin))
     .map((url) => ({ url, depth: MAX_SITEMAP_DEPTH }));
   const seenSitemapDocs = new Set<string>();
+  let sitemapFound = false;
   let fetchedDocs = 0;
   let failedDocs = 0;
   let timedOutDocs = 0;
@@ -281,6 +304,8 @@ export async function discoverUrls(
           return;
         }
 
+        sitemapFound = true;
+
         for (const pageUrl of result.pageUrls) {
           if (!isSameOrigin(pageUrl, origin)) continue;
           if (allUrls.size >= maxDiscoveredUrls) break;
@@ -310,5 +335,7 @@ export async function discoverUrls(
   return {
     urls: Array.from(allUrls).slice(0, maxPages),
     robotsText,
+    robotsStatus,
+    sitemapFound,
   };
 }

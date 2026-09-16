@@ -7,7 +7,6 @@ import * as sqliteAuth from "./better-auth-schema";
 import * as sqliteBilling from "./billing.schema";
 import * as sqliteGa4 from "./ga4.schema";
 import * as sqliteGsc from "./gsc.schema";
-import * as sqliteTelemetry from "./telemetry.schema";
 import * as pgApp from "./pg/app.schema";
 import * as pgProjectContext from "./pg/project-context.schema";
 import * as pgAudit from "./pg/audit.schema";
@@ -16,7 +15,6 @@ import * as pgAuth from "./pg/better-auth-schema";
 import * as pgBilling from "./pg/billing.schema";
 import * as pgGa4 from "./pg/ga4.schema";
 import * as pgGsc from "./pg/gsc.schema";
-import * as pgTelemetry from "./pg/telemetry.schema";
 
 // Canonical schema barrel. Repositories import their tables from here and the
 // provider-aware `db` from "@/db", so each repository is written ONCE for both
@@ -35,8 +33,7 @@ type AppSchema = typeof sqliteApp &
   typeof sqliteAuth &
   typeof sqliteBilling &
   typeof sqliteGa4 &
-  typeof sqliteGsc &
-  typeof sqliteTelemetry;
+  typeof sqliteGsc;
 
 const runtimeSchema =
   getDatabaseProvider() === "postgres"
@@ -49,7 +46,6 @@ const runtimeSchema =
         ...pgBilling,
         ...pgGa4,
         ...pgGsc,
-        ...pgTelemetry,
       }
     : {
         ...sqliteApp,
@@ -60,7 +56,6 @@ const runtimeSchema =
         ...sqliteBilling,
         ...sqliteGa4,
         ...sqliteGsc,
-        ...sqliteTelemetry,
       };
 
 // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- guarded by schema-parity.test.ts
@@ -101,5 +96,4 @@ export const {
   billingCustomerStatus,
   ga4Connections,
   gscConnections,
-  telemetryState,
 } = schema;

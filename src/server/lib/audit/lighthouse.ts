@@ -2,7 +2,7 @@ import { detectUrlTemplate, canonicalUrlKey } from "./url-utils";
 import type { BillingCustomerContext } from "@/server/billing/subscription";
 import { createDataforseoClient } from "@/server/lib/dataforseo";
 import type { LighthouseResult, LighthouseStrategy } from "./types";
-import { putTextToR2 } from "@/server/lib/r2";
+import { decodeImageDataUri, putBytesToR2, putTextToR2 } from "@/server/lib/r2";
 
 interface LighthouseSamplePage {
   url: string;
@@ -20,6 +20,11 @@ function canonicalUrlKeyWithoutTrailingSlash(url: string): string {
 type LighthouseFetchResult = {
   result: LighthouseResult;
   payloadJson: string | null;
+  /**
+   * The rendered page as a data: URI, kept out of payloadJson so the stored
+   * report stays a few KB and the image can go to R2 as a real image.
+   */
+  screenshotDataUri: string | null;
 };
 
 /** A check that produced no payload — provider error, or a failed fetch step. */
@@ -45,6 +50,7 @@ export function failedLighthouseFetch(
       errorMessage,
     },
     payloadJson: null,
+    screenshotDataUri: null,
   };
 }
 
@@ -56,23 +62,27 @@ export async function fetchLighthouseResult(
 ): Promise<LighthouseFetchResult> {
   const dataforseo = createDataforseoClient(billingCustomer);
   try {
-    const data = await dataforseo.lighthouse.live({ url, strategy });
+    const { screenshot, ...payload } = await dataforseo.lighthouse.live({
+      url,
+      strategy,
+    });
 
     return {
       result: {
         url,
         pageId,
         strategy,
-        performanceScore: data.scores.performance,
-        accessibilityScore: data.scores.accessibility,
-        bestPracticesScore: data.scores["best-practices"],
-        seoScore: data.scores.seo,
-        lcpMs: data.metrics.largestContentfulPaint.numericValue,
-        cls: data.metrics.cumulativeLayoutShift.numericValue,
-        inpMs: data.metrics.interactionToNextPaint.numericValue,
-        ttfbMs: data.metrics.serverResponseTime.numericValue,
+        performanceScore: payload.scores.performance,
+        accessibilityScore: payload.scores.accessibility,
+        bestPracticesScore: payload.scores["best-practices"],
+        seoScore: payload.scores.seo,
+        lcpMs: payload.metrics.largestContentfulPaint.numericValue,
+        cls: payload.metrics.cumulativeLayoutShift.numericValue,
+        inpMs: payload.metrics.interactionToNextPaint.numericValue,
+        ttfbMs: payload.metrics.serverResponseTime.numericValue,
       },
-      payloadJson: JSON.stringify(data),
+      payloadJson: JSON.stringify(payload),
+      screenshotDataUri: screenshot ?? null,
     };
   } catch (error) {
     const failed = error instanceof Error ? error : new Error(String(error));
@@ -99,14 +109,47 @@ export async function storeLighthouseResult(input: {
   }
 
   const { pageId, strategy } = input.fetched.result;
-  const key = `site-audit/${input.projectId}/${input.auditId}/${pageId}-${strategy}.json`;
-  const uploaded = await putTextToR2(key, input.fetched.payloadJson);
+  const prefix = `site-audit/${input.projectId}/${input.auditId}/${pageId}-${strategy}`;
+  const uploaded = await putTextToR2(
+    `${prefix}.json`,
+    input.fetched.payloadJson,
+  );
 
   return {
     ...input.fetched.result,
     r2Key: uploaded.key,
     payloadSizeBytes: uploaded.sizeBytes,
+    screenshotR2Key: await storeScreenshot(
+      prefix,
+      input.fetched.screenshotDataUri,
+    ),
   };
+}
+
+/**
+ * Upload the run's screenshot beside its payload. A screenshot is a nice-to-
+ * have on a paid check that already succeeded, so an upload failure is logged
+ * and dropped rather than failing the step and re-charging the audit.
+ */
+async function storeScreenshot(
+  prefix: string,
+  dataUri: string | null,
+): Promise<string | null> {
+  if (!dataUri) return null;
+  const decoded = decodeImageDataUri(dataUri);
+  if (!decoded) return null;
+  const extension = decoded.contentType === "image/png" ? "png" : "jpg";
+  try {
+    const uploaded = await putBytesToR2(
+      `${prefix}-screenshot.${extension}`,
+      decoded.bytes,
+      decoded.contentType,
+    );
+    return uploaded.key;
+  } catch (error) {
+    console.warn(`Failed to store Lighthouse screenshot for ${prefix}:`, error);
+    return null;
+  }
 }
 
 /**

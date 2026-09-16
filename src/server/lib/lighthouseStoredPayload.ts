@@ -13,6 +13,8 @@ export type RawLighthouseAudit = {
     overallSavingsBytes?: number;
     /** Newer "insight" audits report a single object instead of a list. */
     items?: Array<Record<string, unknown>> | Record<string, unknown>;
+    /** Screenshot audits carry the image inline as a data: URI. */
+    data?: unknown;
   };
 };
 
@@ -75,6 +77,13 @@ export const storedLighthousePayloadSchema = z.object({
   }),
   metrics: storedLighthouseMetricsSchema,
   issues: z.array(storedLighthouseIssueSchema),
+  /**
+   * Transient: the final screenshot as a data: URI, carried from the parser to
+   * the persistence step, which uploads it to R2 as a binary object and strips
+   * it before the payload is stored. Optional so a payload read back from R2
+   * (which never contains it) still validates.
+   */
+  screenshot: z.string().nullable().optional(),
 });
 
 type StoredLighthouseMetric = z.infer<typeof storedLighthouseMetricSchema>;
@@ -246,6 +255,30 @@ export function buildStoredLighthouseIssues(input: {
     hasIssueDetails,
     issues,
   };
+}
+
+/**
+ * Upper bound on the screenshot data URI we accept. A Lighthouse final
+ * screenshot is a ~50-200 KB JPEG; anything past this is a malformed or
+ * hostile payload and is dropped rather than carried through the audit
+ * worker's memory and into R2.
+ */
+const MAX_SCREENSHOT_DATA_URI_BYTES = 4 * 1024 * 1024;
+
+/**
+ * The page as the provider's Chrome finally rendered it, as a data: URI.
+ * Lighthouse ships it under the hidden "final-screenshot" audit of the
+ * performance category; null when the run produced none (a failed load, or a
+ * provider that strips it).
+ */
+export function extractLighthouseScreenshot(
+  audits: Record<string, RawLighthouseAudit>,
+): string | null {
+  const data = audits["final-screenshot"]?.details?.data;
+  if (typeof data !== "string") return null;
+  if (!data.startsWith("data:image/")) return null;
+  if (data.length > MAX_SCREENSHOT_DATA_URI_BYTES) return null;
+  return data;
 }
 
 export function buildStoredLighthouseMetrics(input: {

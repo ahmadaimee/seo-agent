@@ -106,6 +106,21 @@ function fetch(
 // (e.g. Railway) in local_noauth mode. Set SELFHOST_BASIC_AUTH_USER and
 // SELFHOST_BASIC_AUTH_PASSWORD; unset = no guard (local Docker). /api/health
 // stays open for platform health checks (it only reports setup status).
+/**
+ * Paths the Basic-auth guard lets through. /api/health stays open for platform
+ * health checks (it only reports setup status). Shared audit reports carry
+ * their own credential in the URL — the whole point is that a recipient with
+ * no workspace account can open them — so the guard would defeat them.
+ */
+function isUnguardedPath(pathname: string): boolean {
+  return (
+    pathname === "/api/health" ||
+    pathname.startsWith("/r/") ||
+    pathname === "/api/audit/shared-report" ||
+    pathname === "/api/audit/screenshot"
+  );
+}
+
 function basicAuthGuard(
   request: Request,
   env: Env,
@@ -125,7 +140,7 @@ function basicAuthGuard(
     typeof env.SELFHOST_BASIC_AUTH_PASSWORD === "string"
       ? env.SELFHOST_BASIC_AUTH_PASSWORD
       : undefined;
-  if (!user || !password || pathname === "/api/health") return undefined;
+  if (!user || !password || isUnguardedPath(pathname)) return undefined;
 
   const header = request.headers.get("authorization") ?? "";
   const expected = `Basic ${btoa(`${user}:${password}`)}`;

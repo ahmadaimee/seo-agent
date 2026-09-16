@@ -17,6 +17,7 @@ import { AuditRepository } from "@/server/features/audit/repositories/AuditRepos
 import { getAuditScratchpad } from "@/server/features/audit/AuditScratchpad";
 import { AuditProgressKV } from "@/server/lib/audit/progress-kv";
 import { runMultipageChecks } from "@/server/lib/audit/issues/multipage";
+import { runSiteChecks } from "@/server/lib/audit/issues/site";
 import type { DetectedIssue } from "@/server/lib/audit/issues/page-reporters";
 import type { AuditConfig } from "@/server/lib/audit/types";
 import { captureServerEvent } from "@/server/lib/posthog";
@@ -31,6 +32,7 @@ import {
   LIGHTHOUSE_FETCH_STEP,
   LIGHTHOUSE_PERSIST_STEP,
   MULTIPAGE_CHECKS_STEP,
+  SITE_CHECKS_STEP,
 } from "@/server/workflows/auditStepConfigs";
 
 /**
@@ -102,8 +104,21 @@ export async function runAuditPhases(
     startUrl,
     config,
     crawl,
+    discovery,
   });
 }
+
+type DiscoveryPhaseResult = {
+  robotsText: string | null;
+  /**
+   * Both are optional because instances checkpointed before the site-file
+   * checks existed replay with the old step shape. Consumers default them to
+   * "nothing to report" rather than inventing findings on a replay.
+   */
+  robotsStatus?: number;
+  sitemapFound?: boolean;
+  seededCount: number;
+};
 
 async function runDiscoveryPhase(
   step: WorkflowStep,
@@ -114,7 +129,7 @@ async function runDiscoveryPhase(
     startUrl: string;
     maxPages: number;
   },
-) {
+): Promise<DiscoveryPhaseResult> {
   const { auditId, workflowInstanceId, origin, startUrl, maxPages } = input;
   // "-v2": the checkpoint shape changed (seeds now live in the scratchpad DO
   // instead of the step return). A pre-refactor instance replayed under this
@@ -161,7 +176,12 @@ async function runDiscoveryPhase(
       pagesTotal: Math.min(seededCount, maxPages),
       currentPhase: "crawling",
     });
-    return { robotsText: result.robotsText, seededCount };
+    return {
+      robotsText: result.robotsText,
+      robotsStatus: result.robotsStatus,
+      sitemapFound: result.sitemapFound,
+      seededCount,
+    };
   });
 }
 
@@ -319,6 +339,7 @@ async function finalizeAudit(args: {
   startUrl: string;
   config: AuditConfig;
   crawl: CrawlPhaseResult;
+  discovery: DiscoveryPhaseResult;
 }) {
   const {
     step,
@@ -329,6 +350,7 @@ async function finalizeAudit(args: {
     startUrl,
     config,
     crawl,
+    discovery,
   } = args;
 
   await pgStep(step, "multipage-checks", MULTIPAGE_CHECKS_STEP, async () => {
@@ -357,6 +379,25 @@ async function finalizeAudit(args: {
         pageUrl: startUrl,
       });
     }
+    await AuditRepository.insertIssues(auditId, issues);
+    return { issueCount: issues.length };
+  });
+
+  // Separate from the multipage step: this one leaves the database to make
+  // network requests, so a slow or unreachable site retries these probes
+  // without re-running the cross-page SQL.
+  await pgStep(step, "site-checks", SITE_CHECKS_STEP, async () => {
+    const issues = await runSiteChecks({
+      auditId,
+      origin: getOrigin(startUrl),
+      startUrl,
+      robotsText: discovery.robotsText,
+      // A pre-site-checks checkpoint carries neither field. Defaulting to a
+      // healthy robots.txt and a found sitemap keeps a replay from reporting
+      // problems the original run never observed.
+      robotsStatus: discovery.robotsStatus ?? 200,
+      sitemapFound: discovery.sitemapFound ?? true,
+    });
     await AuditRepository.insertIssues(auditId, issues);
     return { issueCount: issues.length };
   });

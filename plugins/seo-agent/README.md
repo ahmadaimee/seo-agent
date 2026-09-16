@@ -25,13 +25,16 @@ the entire local analysis; the output names the sections it had to skip.
 1. **Run S.E.O Agent locally** (from the repository root):
 
    ```bash
-   cp .env.example .env        # set DATAFORSEO_API_KEY
-   docker compose up -d --build
+   cp .env.example .env.local  # set DATAFORSEO_API_KEY
+   pnpm install --frozen-lockfile
+   pnpm run db:migrate:local
+   pnpm dev
    ```
 
-   The app is at `http://localhost:3010` and the MCP server at
-   `http://localhost:3010/mcp`. Auth is disabled (`AUTH_MODE=local_noauth`) —
-   keep it bound to localhost or behind your own auth.
+   The app is at `http://localhost:3001` and the MCP server at
+   `http://localhost:3001/mcp`. Auth is disabled (`AUTH_MODE=local_noauth`) —
+   keep it bound to localhost or behind your own auth. To run it on a server
+   instead, see the Railway guide in the repository docs.
 
 2. **Install the plugin** in Claude Code:
 

@@ -48,6 +48,14 @@ export const AUDIT_ISSUE_TYPES = {
     howToFix:
       "Check the server logs for this URL and fix the underlying error. If the page is gone, return a 404/410 or redirect it to a relevant page instead of erroring.",
   },
+  "robots-txt-unreachable": {
+    severity: "critical",
+    title: "robots.txt returns a server error",
+    explanation:
+      "The request for /robots.txt failed with a server error or timed out. Google treats this very differently from a missing file: on a 5xx it stops crawling the site entirely for the first 12 hours, then falls back to the last cached copy for 30 days. A robots.txt that keeps erroring can therefore freeze crawling of the whole site.",
+    howToFix:
+      "Make /robots.txt return 200 with a plain-text body, or 404 if you genuinely do not want one — a 404 is safe and means 'no restrictions'. A 5xx never is. Check that the path is not routed through an application layer that can fail or time out.",
+  },
   "broken-internal-link": {
     severity: "critical",
     title: "Broken internal link",
@@ -160,6 +168,38 @@ export const AUDIT_ISSUE_TYPES = {
     howToFix:
       'Add descriptive alt text to meaningful images; use an empty alt (alt="") only for purely decorative ones.',
   },
+  "broken-favicon": {
+    severity: "warning",
+    title: "Favicon is unreachable",
+    explanation:
+      "The favicon declared on the home page does not load (it returns an error status, or the server answers with something that is not an image). Google only shows a favicon in search results when Googlebot-Image can fetch the file, so a broken reference means the generic globe icon next to every result for this site.",
+    howToFix:
+      'Fix the path in the <link rel="icon"> tag so it points at a file that really exists, and make sure the file is not blocked by robots.txt or your WAF. Serve it with an image content type (image/x-icon, image/png, ...).',
+  },
+  "og-image-relative-url": {
+    severity: "warning",
+    title: "og:image uses a relative URL",
+    explanation:
+      "The og:image value is a relative path rather than a full URL. The Open Graph protocol requires an absolute URL; Facebook, LinkedIn, Slack and most other scrapers cannot resolve a relative one, so the link preview falls back to no image at all.",
+    howToFix:
+      "Change the og:image content to an absolute URL including the scheme and host, e.g. https://example.com/images/preview.png. Sitewide templates usually need the site's base URL prefixed onto the asset path.",
+  },
+  "broken-og-image": {
+    severity: "warning",
+    title: "og:image is unreachable",
+    explanation:
+      "The URL in og:image does not return an image (an error status, a redirect that never resolves, or a non-image content type). Every platform that builds a link preview will render this page without a picture, which measurably reduces clicks on shared links.",
+    howToFix:
+      "Point og:image at a live image URL and check it is publicly fetchable — no login, no hotlink protection, and not blocked by robots.txt. Social scrapers do not send your site's cookies.",
+  },
+  "missing-sitemap": {
+    severity: "warning",
+    title: "No XML sitemap found",
+    explanation:
+      "No sitemap was reachable — robots.txt declares none, and /sitemap.xml does not return one. A sitemap is how search engines learn about pages that are new, rarely linked, or deep in the site; without one, discovery depends entirely on internal links.",
+    howToFix:
+      "Generate an XML sitemap listing your indexable URLs, serve it (commonly at /sitemap.xml), and add a 'Sitemap: https://example.com/sitemap.xml' line to robots.txt. Most CMS platforms and frameworks can produce one automatically.",
+  },
   "orphan-page": {
     severity: "warning",
     title: "Orphan page",
@@ -239,6 +279,86 @@ export const AUDIT_ISSUE_TYPES = {
       "The page declares a different URL as its canonical, telling search engines to index that URL instead. Fine when intentional (parameter pages, syndication) — a problem if this page was meant to rank.",
     howToFix:
       "If this page should rank on its own, set its canonical to itself. Otherwise no action is needed.",
+  },
+  "missing-favicon": {
+    severity: "info",
+    title: "No favicon found",
+    explanation:
+      "The home page declares no favicon and no icon was found at /favicon.ico. Google uses the favicon beside your result in search, and browsers use it in tabs, bookmarks and history; without one the site shows a generic placeholder and is harder to recognize.",
+    howToFix:
+      'Add <link rel="icon" href="/favicon.ico"> (or a PNG) to the <head> of the home page and serve the file. Google recommends a square icon of at least 48x48 pixels, at a URL that stays stable over time.',
+  },
+  "favicon-unsupported-format": {
+    severity: "info",
+    title: "Favicon format not supported by Google",
+    explanation:
+      "The only favicon this page declares is in a format Google Search does not read (most often SVG). Browsers render it fine, so the tab icon looks right, but search results fall back to a generic icon.",
+    howToFix:
+      'Keep the current icon for browsers and add a second <link rel="icon"> pointing at an ICO or PNG version. Google supports BMP, GIF, ICO, PNG, JPEG, PPM and TIFF.',
+  },
+  "missing-og-image": {
+    severity: "info",
+    title: "Missing social preview image (og:image)",
+    explanation:
+      "The page declares no og:image and no twitter:image, so links to it share as a bare text snippet on social platforms, Slack, Discord and messaging apps. Previews with an image are clicked substantially more often.",
+    howToFix:
+      'Add <meta property="og:image" content="https://example.com/preview.png"> with an absolute URL. 1200x630 pixels (1.91:1) is the size every major platform accepts; one good sitewide default beats none.',
+  },
+  "og-image-too-small": {
+    severity: "info",
+    title: "Social preview image is too small",
+    explanation:
+      "The declared og:image dimensions are below the 200x200 pixel minimum most platforms enforce. Undersized images are either rejected outright or rendered as a small square thumbnail instead of the large preview card.",
+    howToFix:
+      "Replace the image with one at least 200x200 pixels — 1200x630 is the recommended size — and update og:image:width and og:image:height to match the new file.",
+  },
+  "missing-analytics-tag": {
+    severity: "info",
+    title: "No analytics tag detected",
+    explanation:
+      "The home page's HTML contains no Google Analytics (GA4), Google Tag Manager or Universal Analytics tag. Without analytics you cannot tell which pages earn organic traffic, so SEO work has no feedback loop. Note that we only read the served HTML: a tag injected by a consent manager, a server-side container, or a non-Google tool will not be seen here.",
+    howToFix:
+      "If you are measuring traffic with something else, ignore this. Otherwise create a GA4 property and install its gtag.js snippet (or a Google Tag Manager container) sitewide, and connect Search Console to the same property.",
+  },
+  "missing-google-site-verification": {
+    severity: "info",
+    title: "No Search Console verification tag on the home page",
+    explanation:
+      "The home page carries no google-site-verification meta tag. This is not proof that the site is unverified — Search Console also accepts DNS TXT records, an uploaded HTML file, a Google Analytics tag or a Tag Manager container, and none of those leave a trace in the page's markup. Treat it as a prompt to confirm the property is claimed.",
+    howToFix:
+      "Check whether the property is already verified in Search Console. If it is not, verify it — Search Console reports the queries, impressions and indexing problems that no crawler can see from the outside. The meta tag is the simplest method if you can edit the home page's <head>.",
+  },
+  "missing-bing-site-verification": {
+    severity: "info",
+    title: "No Bing Webmaster Tools verification tag on the home page",
+    explanation:
+      "The home page carries no msvalidate.01 meta tag. As with Search Console, the site may still be verified by DNS record, XML file, or by importing the property from Search Console, so this is a prompt rather than a defect. Bing's index also serves Yahoo, DuckDuckGo and Copilot, so the data is worth having.",
+    howToFix:
+      "If the site is not yet in Bing Webmaster Tools, the fastest route is to import the property directly from Google Search Console. Otherwise add the msvalidate.01 meta tag Bing gives you to the home page's <head>.",
+  },
+  "missing-robots-txt": {
+    severity: "info",
+    title: "No robots.txt",
+    explanation:
+      "The site has no /robots.txt (it returns 404). Nothing is broken — Google reads a missing robots.txt as 'crawl everything' — but you lose the usual place to declare your sitemap and to keep crawlers out of search, cart or admin URLs.",
+    howToFix:
+      "Add a /robots.txt with at least a Sitemap line. Keep it permissive unless you have a reason not to; a stray Disallow here is one of the easiest ways to deindex a site by accident.",
+  },
+  "sitemap-not-in-robots": {
+    severity: "info",
+    title: "Sitemap not declared in robots.txt",
+    explanation:
+      "A sitemap exists at the conventional location but robots.txt does not point to it. Search engines that do not guess /sitemap.xml, and tools that read robots.txt to find one, will miss it.",
+    howToFix:
+      "Add a line 'Sitemap: https://example.com/sitemap.xml' to robots.txt, using the sitemap's absolute URL. The directive is independent of any user-agent group, so its position in the file does not matter.",
+  },
+  "missing-llms-txt": {
+    severity: "info",
+    title: "No llms.txt",
+    explanation:
+      "The site serves no /llms.txt. This is an emerging convention for telling AI assistants which pages best describe your site, in plain Markdown. It is not used by Google Search and no major AI provider has committed to reading it, so treat this as optional positioning rather than a fix.",
+    howToFix:
+      "If you want to publish one, add a Markdown /llms.txt with an H1 for the site name, a short summary, and linked sections for your key documentation or product pages. Skip it if nothing on the site benefits from being summarized for assistants.",
   },
   "deep-page": {
     severity: "info",

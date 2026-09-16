@@ -18,7 +18,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as ProjectRouteRouteImport } from './routes/_project/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as MockupsSignupRouteImport } from './routes/mockups.signup'
+import { Route as RTokenRouteImport } from './routes/r.$token'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as AcceptInvitationIdRouteImport } from './routes/accept-invitation.$id'
 import { Route as AuthenticatedSubscribeRouteImport } from './routes/_authenticated.subscribe'
@@ -36,6 +36,8 @@ import { Route as AuthenticatedOnboardingIndexRouteImport } from './routes/_auth
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as ApiAutumnSplatRouteImport } from './routes/api/autumn/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAuditSharedReportRouteImport } from './routes/api/audit/shared-report'
+import { Route as ApiAuditScreenshotRouteImport } from './routes/api/audit/screenshot'
 import { Route as AppSettingsOrganizationRouteImport } from './routes/_app/settings/organization'
 import { Route as AppHelpOpenrouterApiKeyRouteImport } from './routes/_app/help/openrouter-api-key'
 import { Route as AppHelpDataforseoApiKeyRouteImport } from './routes/_app/help/dataforseo-api-key'
@@ -103,9 +105,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const MockupsSignupRoute = MockupsSignupRouteImport.update({
-  id: '/mockups/signup',
-  path: '/mockups/signup',
+const RTokenRoute = RTokenRouteImport.update({
+  id: '/r/$token',
+  path: '/r/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
@@ -194,6 +196,16 @@ const ApiAutumnSplatRoute = ApiAutumnSplatRouteImport.update({
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuditSharedReportRoute = ApiAuditSharedReportRouteImport.update({
+  id: '/api/audit/shared-report',
+  path: '/api/audit/shared-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuditScreenshotRoute = ApiAuditScreenshotRouteImport.update({
+  id: '/api/audit/screenshot',
+  path: '/api/audit/screenshot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppSettingsOrganizationRoute = AppSettingsOrganizationRouteImport.update({
@@ -355,11 +367,13 @@ export interface FileRoutesByFullPath {
   '/subscribe': typeof AuthenticatedSubscribeRoute
   '/accept-invitation/$id': typeof AcceptInvitationIdRoute
   '/api/health': typeof ApiHealthRoute
-  '/mockups/signup': typeof MockupsSignupRoute
+  '/r/$token': typeof RTokenRoute
   '/p/$projectId': typeof ProjectPProjectIdRouteRouteWithChildren
   '/help/dataforseo-api-key': typeof AppHelpDataforseoApiKeyRoute
   '/help/openrouter-api-key': typeof AppHelpOpenrouterApiKeyRoute
   '/settings/organization': typeof AppSettingsOrganizationRoute
+  '/api/audit/screenshot': typeof ApiAuditScreenshotRoute
+  '/api/audit/shared-report': typeof ApiAuditSharedReportRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/autumn/$': typeof ApiAutumnSplatRoute
   '/settings/': typeof AppSettingsIndexRoute
@@ -404,10 +418,12 @@ export interface FileRoutesByTo {
   '/subscribe': typeof AuthenticatedSubscribeRoute
   '/accept-invitation/$id': typeof AcceptInvitationIdRoute
   '/api/health': typeof ApiHealthRoute
-  '/mockups/signup': typeof MockupsSignupRoute
+  '/r/$token': typeof RTokenRoute
   '/help/dataforseo-api-key': typeof AppHelpDataforseoApiKeyRoute
   '/help/openrouter-api-key': typeof AppHelpOpenrouterApiKeyRoute
   '/settings/organization': typeof AppSettingsOrganizationRoute
+  '/api/audit/screenshot': typeof ApiAuditScreenshotRoute
+  '/api/audit/shared-report': typeof ApiAuditSharedReportRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/autumn/$': typeof ApiAutumnSplatRoute
   '/settings': typeof AppSettingsIndexRoute
@@ -454,12 +470,14 @@ export interface FileRoutesById {
   '/_authenticated/subscribe': typeof AuthenticatedSubscribeRoute
   '/accept-invitation/$id': typeof AcceptInvitationIdRoute
   '/api/health': typeof ApiHealthRoute
-  '/mockups/signup': typeof MockupsSignupRoute
+  '/r/$token': typeof RTokenRoute
   '/_app/': typeof AppIndexRoute
   '/_project/p/$projectId': typeof ProjectPProjectIdRouteRouteWithChildren
   '/_app/help/dataforseo-api-key': typeof AppHelpDataforseoApiKeyRoute
   '/_app/help/openrouter-api-key': typeof AppHelpOpenrouterApiKeyRoute
   '/_app/settings/organization': typeof AppSettingsOrganizationRoute
+  '/api/audit/screenshot': typeof ApiAuditScreenshotRoute
+  '/api/audit/shared-report': typeof ApiAuditSharedReportRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/autumn/$': typeof ApiAutumnSplatRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
@@ -507,11 +525,13 @@ export interface FileRouteTypes {
     | '/subscribe'
     | '/accept-invitation/$id'
     | '/api/health'
-    | '/mockups/signup'
+    | '/r/$token'
     | '/p/$projectId'
     | '/help/dataforseo-api-key'
     | '/help/openrouter-api-key'
     | '/settings/organization'
+    | '/api/audit/screenshot'
+    | '/api/audit/shared-report'
     | '/api/auth/$'
     | '/api/autumn/$'
     | '/settings/'
@@ -556,10 +576,12 @@ export interface FileRouteTypes {
     | '/subscribe'
     | '/accept-invitation/$id'
     | '/api/health'
-    | '/mockups/signup'
+    | '/r/$token'
     | '/help/dataforseo-api-key'
     | '/help/openrouter-api-key'
     | '/settings/organization'
+    | '/api/audit/screenshot'
+    | '/api/audit/shared-report'
     | '/api/auth/$'
     | '/api/autumn/$'
     | '/settings'
@@ -605,12 +627,14 @@ export interface FileRouteTypes {
     | '/_authenticated/subscribe'
     | '/accept-invitation/$id'
     | '/api/health'
-    | '/mockups/signup'
+    | '/r/$token'
     | '/_app/'
     | '/_project/p/$projectId'
     | '/_app/help/dataforseo-api-key'
     | '/_app/help/openrouter-api-key'
     | '/_app/settings/organization'
+    | '/api/audit/screenshot'
+    | '/api/audit/shared-report'
     | '/api/auth/$'
     | '/api/autumn/$'
     | '/_app/settings/'
@@ -650,7 +674,9 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OpenaiAppsChallengeRoute: typeof Char91DotwellKnownChar93OpenaiAppsChallengeRoute
   AcceptInvitationIdRoute: typeof AcceptInvitationIdRoute
   ApiHealthRoute: typeof ApiHealthRoute
-  MockupsSignupRoute: typeof MockupsSignupRoute
+  RTokenRoute: typeof RTokenRoute
+  ApiAuditScreenshotRoute: typeof ApiAuditScreenshotRoute
+  ApiAuditSharedReportRoute: typeof ApiAuditSharedReportRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAutumnSplatRoute: typeof ApiAutumnSplatRoute
   ApiGa4OauthCallbackRoute: typeof ApiGa4OauthCallbackRoute
@@ -722,11 +748,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/mockups/signup': {
-      id: '/mockups/signup'
-      path: '/mockups/signup'
-      fullPath: '/mockups/signup'
-      preLoaderRoute: typeof MockupsSignupRouteImport
+    '/r/$token': {
+      id: '/r/$token'
+      path: '/r/$token'
+      fullPath: '/r/$token'
+      preLoaderRoute: typeof RTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -846,6 +872,20 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/audit/shared-report': {
+      id: '/api/audit/shared-report'
+      path: '/api/audit/shared-report'
+      fullPath: '/api/audit/shared-report'
+      preLoaderRoute: typeof ApiAuditSharedReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/audit/screenshot': {
+      id: '/api/audit/screenshot'
+      path: '/api/audit/screenshot'
+      fullPath: '/api/audit/screenshot'
+      preLoaderRoute: typeof ApiAuditScreenshotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/settings/organization': {
@@ -1214,7 +1254,9 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OpenaiAppsChallengeRoute,
   AcceptInvitationIdRoute: AcceptInvitationIdRoute,
   ApiHealthRoute: ApiHealthRoute,
-  MockupsSignupRoute: MockupsSignupRoute,
+  RTokenRoute: RTokenRoute,
+  ApiAuditScreenshotRoute: ApiAuditScreenshotRoute,
+  ApiAuditSharedReportRoute: ApiAuditSharedReportRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAutumnSplatRoute: ApiAutumnSplatRoute,
   ApiGa4OauthCallbackRoute: ApiGa4OauthCallbackRoute,

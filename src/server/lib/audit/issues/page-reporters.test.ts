@@ -30,7 +30,18 @@ function makePage(overrides: Partial<CrawledPageResult>): CrawledPageResult {
     headerCanonicalUrl: null,
     ogTitle: null,
     ogDescription: null,
-    ogImage: null,
+    // A sound default: without it every fixture would also report
+    // missing-og-image and drown the assertions in this file.
+    ogImage: "https://example.com/og.png",
+    ogImageUrl: "https://example.com/og.png",
+    ogImageAlt: null,
+    ogImageWidth: null,
+    ogImageHeight: null,
+    twitterImage: null,
+    favicons: [],
+    googleSiteVerification: null,
+    bingSiteVerification: null,
+    analyticsIds: [],
     h1Count: 1,
     h2Count: 0,
     h3Count: 0,
@@ -207,6 +218,61 @@ describe("runPageReporters", () => {
     expect(issueTypes(makePage({ links: [HEALTHY_LINK] }))).not.toContain(
       "no-outgoing-links",
     );
+  });
+
+  describe("social preview image", () => {
+    const noImage = { ogImage: null, ogImageUrl: null };
+
+    it("flags an indexable page with neither og:image nor twitter:image", () => {
+      expect(issueTypes(makePage(noImage))).toContain("missing-og-image");
+    });
+
+    it("accepts a twitter:image when og:image is absent", () => {
+      expect(
+        issueTypes(
+          makePage({ ...noImage, twitterImage: "https://example.com/tw.png" }),
+        ),
+      ).not.toContain("missing-og-image");
+    });
+
+    it("leaves noindex pages alone", () => {
+      expect(
+        issueTypes(makePage({ ...noImage, isIndexable: false })),
+      ).not.toContain("missing-og-image");
+    });
+
+    it("flags a relative og:image instead of calling it missing", () => {
+      const types = issueTypes(makePage({ ogImage: "/og.png" }));
+      expect(types).toContain("og-image-relative-url");
+      expect(types).not.toContain("missing-og-image");
+    });
+
+    it("flags a protocol-relative og:image, which scrapers mishandle", () => {
+      expect(
+        issueTypes(makePage({ ogImage: "//cdn.example.com/og.png" })),
+      ).toContain("og-image-relative-url");
+    });
+
+    it("accepts an absolute og:image whatever its case", () => {
+      expect(
+        issueTypes(makePage({ ogImage: "HTTPS://example.com/og.png" })),
+      ).not.toContain("og-image-relative-url");
+    });
+
+    it("flags declared dimensions below the platform minimum", () => {
+      expect(
+        issueTypes(makePage({ ogImageWidth: 1200, ogImageHeight: 100 })),
+      ).toContain("og-image-too-small");
+      expect(
+        issueTypes(makePage({ ogImageWidth: 1200, ogImageHeight: 630 })),
+      ).not.toContain("og-image-too-small");
+    });
+
+    it("says nothing about size when only one dimension is declared", () => {
+      expect(issueTypes(makePage({ ogImageWidth: 10 }))).not.toContain(
+        "og-image-too-small",
+      );
+    });
   });
 });
 

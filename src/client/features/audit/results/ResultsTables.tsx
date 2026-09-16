@@ -17,6 +17,10 @@ import {
 } from "@/client/features/audit/shared";
 import type { AuditResultsData } from "@/client/features/audit/results/types";
 import {
+  ScreenshotThumbnail,
+  screenshotUrl,
+} from "@/client/features/audit/screenshot";
+import {
   countActiveFilters,
   EmptyTableMessage,
   PerformanceFilterBar,
@@ -220,6 +224,23 @@ function buildPerformanceColumns({
         );
       },
       sortingFn: nullableNumberSort,
+    }),
+    performanceColumnHelper.display({
+      id: "screenshot",
+      header: () => "Render",
+      cell: ({ row }) =>
+        row.original.screenshotR2Key ? (
+          <ScreenshotThumbnail
+            src={screenshotUrl({
+              auditId,
+              pageId: row.original.pageId,
+              strategy: row.original.strategy,
+            })}
+            alt={`${row.original.strategy} rendering of this page`}
+          />
+        ) : (
+          <span className="text-xs text-base-content/40">-</span>
+        ),
     }),
     performanceColumnHelper.display({
       id: "issues",

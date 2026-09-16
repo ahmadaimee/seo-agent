@@ -6,6 +6,7 @@ import {
   pgTable,
   real,
   text,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { PAGE_FETCH_CLASSES } from "@/shared/audit-fetch-class";
 import { projects } from "./app.schema";
@@ -54,10 +55,16 @@ export const audits = pgTable(
     failedPhase: text("failed_phase"),
     startedAt: timestampColumn("started_at").notNull().default(isoNow),
     completedAt: timestampColumn("completed_at"),
+    // Read-only share link. The token is the URL secret; the password hash is
+    // set only when the link was created with one. Both null = not shared.
+    shareToken: text("share_token"),
+    sharePasswordHash: text("share_password_hash"),
+    shareCreatedAt: timestampColumn("share_created_at"),
   },
   (table) => [
     index("audits_project_id_idx").on(table.projectId),
     index("audits_started_by_user_id_idx").on(table.startedByUserId),
+    uniqueIndex("audits_share_token_idx").on(table.shareToken),
   ],
 );
 
@@ -81,6 +88,20 @@ export const auditPages = pgTable(
     ogTitle: text("og_title"),
     ogDescription: text("og_description"),
     ogImage: text("og_image"),
+    // og:image resolved against the page URL. Kept beside the raw value so
+    // the "must be an absolute URL" check reads one and the reachability
+    // check fetches the other.
+    ogImageUrl: text("og_image_url"),
+    ogImageAlt: text("og_image_alt"),
+    ogImageWidth: integer("og_image_width"),
+    ogImageHeight: integer("og_image_height"),
+    twitterImage: text("twitter_image"),
+    // JSON array of the <link rel="icon"> / apple-touch-icon tags in <head>.
+    faviconsJson: text("favicons_json"),
+    // Site ownership and measurement tags found in the page's markup.
+    googleSiteVerification: text("google_site_verification"),
+    bingSiteVerification: text("bing_site_verification"),
+    analyticsIdsJson: text("analytics_ids_json"),
     // Headings
     h1Count: integer("h1_count").notNull().default(0),
     h2Count: integer("h2_count").notNull().default(0),
@@ -173,6 +194,8 @@ export const auditLighthouseResults = pgTable(
     errorMessage: text("error_message"),
     r2Key: text("r2_key"),
     payloadSizeBytes: integer("payload_size_bytes"),
+    // R2 object holding the page as Lighthouse's Chrome finally rendered it.
+    screenshotR2Key: text("screenshot_r2_key"),
   },
   (table) => [
     index("audit_lighthouse_results_audit_id_idx").on(table.auditId),

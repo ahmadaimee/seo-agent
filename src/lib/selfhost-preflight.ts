@@ -233,14 +233,14 @@ export function runSelfhostPreflight(env: EnvRecord): PreflightResult {
           key: "runtime",
           name: "ALLOWED_HOST",
           level: "ok",
-          message: `Requests allowed for host ${get(env, "ALLOWED_HOST")}`,
+          message: `Requests allowed for: ${get(env, "ALLOWED_HOST")}`,
         }
       : {
           key: "runtime",
           name: "ALLOWED_HOST",
           level: "info",
           message:
-            'Not set — only localhost access will work. Behind a reverse proxy or tunnel, set ALLOWED_HOST=yourdomain.com or requests are blocked with Vite\'s "Blocked request" page.',
+            'Not set — only localhost access will work. Behind a reverse proxy, a custom domain or a tunnel, set ALLOWED_HOST to the hostnames it serves (comma-separated) or requests are blocked with Vite\'s "Blocked request" page.',
         },
   );
 
