@@ -44,7 +44,7 @@ Any finished audit can be published as a read-only link (`/r/<token>`), optional
 /plugin install seo-agent@seo-agent
 ```
 
-The plugin's MCP entry defaults to `http://localhost:3010/mcp`. For a Railway (or any remote) instance set two environment variables on your machine:
+The plugin's MCP entry defaults to `http://localhost:3001/mcp`. For a Railway (or any remote) instance set two environment variables on your machine:
 
 - `SEO_AGENT_MCP_URL` — e.g. `https://your-host/mcp`
 - `SEO_AGENT_MCP_AUTH` — e.g. `Basic <base64 user:password>` when Basic auth is on

@@ -350,7 +350,7 @@ export class SamChatAgent extends Think {
 
       const baseUrl =
         (await this.ctx.storage.get<string>(PUBLIC_ORIGIN_KEY)) ??
-        "http://localhost:3010";
+        "http://localhost:3001";
       // Delegated/self-host orgs have no member rows — implicit owner. In
       // hosted mode a missing member row means the user was removed from the
       // workspace; fail closed instead of letting the open socket keep

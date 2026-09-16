@@ -27,7 +27,7 @@
   "skills": "./skills/",
   "mcpServers": {
     "seo-agent": {
-      "url": "${SEO_AGENT_MCP_URL:-http://localhost:3010/mcp}",
+      "url": "${SEO_AGENT_MCP_URL:-http://localhost:3001/mcp}",
       "headers": {
         "Authorization": "${SEO_AGENT_MCP_AUTH:-}"
       }

@@ -25,7 +25,7 @@ The official plugin bundles MCP + SEO skills, with S.E.O Agent namespacing and s
 
 If the plugin is unsupported:
 
-- Add `http://localhost:3010/mcp` using the [MCP guide](https://github.com/ahmadaimee/seo-agent/blob/main/docs/mcp).
+- Add `http://localhost:3001/mcp` using the [MCP guide](https://github.com/ahmadaimee/seo-agent/blob/main/docs/mcp).
 - Install the [public SEO skills](https://github.com/ahmadaimee/seo-agent/blob/main/docs/skills/setup) for this agent only.
 - Do not copy internal repository skills or duplicate bundled skills.
 - If skills are unsupported, use MCP alone and link to the workflow guides.
@@ -35,7 +35,7 @@ For self-hosted S.E.O Agent, use its endpoint directly; the official plugin targ
 ## 4. Sign in
 
 - **Prefer OAuth.** Start login; let me approve it in my browser.
-- **No OAuth?** Send me to `http://localhost:3010/settings` → API keys. Have me enter the key in the client's secret settings or environment, never chat or a repository.
+- **No OAuth?** Send me to `http://localhost:3001/settings` → API keys. Have me enter the key in the client's secret settings or environment, never chat or a repository.
 - **Manual setup needed?** Use this agent’s current documentation and give only the steps I need to do myself.
 
 ## 5. Reload and verify

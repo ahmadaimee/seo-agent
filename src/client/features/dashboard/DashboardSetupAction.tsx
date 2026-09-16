@@ -83,7 +83,7 @@ export function DashboardSetupAction({
               primary
               value={getAgentSetupPrompt(
                 typeof window === "undefined"
-                  ? "http://localhost:3010"
+                  ? "http://localhost:3001"
                   : window.location.origin,
               )}
               label="Copy setup prompt"

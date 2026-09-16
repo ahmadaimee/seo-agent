@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SEO_DATA_COST_MARKUP } from "./billing";
 import {
   computeNextCheckAt,
   estimateRankCheckCredits,
@@ -6,38 +7,46 @@ import {
 } from "./rank-tracking";
 
 describe("rank tracking cost estimates", () => {
+  // The expected figures below are hand-computed from the raw DataForSEO rate
+  // card at SEO_DATA_COST_MARKUP = 1 (this self-hosted fork bills DataForSEO at
+  // cost). If the markup ever changes, every number in the table changes with
+  // it — this guard makes that the first thing that fails.
+  it("bills DataForSEO at raw cost", () => {
+    expect(SEO_DATA_COST_MARKUP).toBe(1);
+  });
+
   it.each([
     {
       method: "live" as const,
       keywordCount: 4,
       devices: "desktop" as const,
       depth: 10,
-      costUsd: 0.01024,
-      costCredits: 12,
+      costUsd: 0.008,
+      costCredits: 8,
     },
     {
       method: "live" as const,
       keywordCount: 1000,
       devices: "both" as const,
       depth: 40,
-      costUsd: 16.64,
-      costCredits: 18_000,
+      costUsd: 13,
+      costCredits: 14_000,
     },
     {
       method: "queued" as const,
       keywordCount: 104,
       devices: "desktop" as const,
       depth: 10,
-      costUsd: 0.07987,
-      costCredits: 81,
+      costUsd: 0.0624,
+      costCredits: 63,
     },
     {
       method: "queued" as const,
       keywordCount: 1000,
       devices: "both" as const,
       depth: 40,
-      costUsd: 4.992,
-      costCredits: 5_000,
+      costUsd: 3.9,
+      costCredits: 3_900,
     },
   ])(
     "matches per-call billing for $method checks",

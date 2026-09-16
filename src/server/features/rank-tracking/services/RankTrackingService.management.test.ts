@@ -136,14 +136,15 @@ describe("RankTrackingService management invariants", () => {
         ["seo", "technical seo"],
         {
           kind: "credit_ceiling",
-          maxEstimatedScheduledCheckCredits: 4,
+          // 2 keywords x 2 devices x $0.0006 queued = $0.0024 -> 3 credits.
+          maxEstimatedScheduledCheckCredits: 3,
         },
       ),
     ).resolves.toMatchObject({
       added: 2,
       scheduledEstimate: {
         scheduleInterval: "weekly",
-        costCredits: 4,
+        costCredits: 3,
         checksPerMonth: 4,
       },
     });
@@ -166,7 +167,9 @@ describe("RankTrackingService management invariants", () => {
       ["seo", "technical seo"],
       {
         kind: "credit_ceiling",
-        maxEstimatedScheduledCheckCredits: 4,
+        // Approved for 2 keywords (3 credits); the concurrent add makes it 3
+        // keywords x 2 devices = $0.0036 -> 4 credits, over the ceiling.
+        maxEstimatedScheduledCheckCredits: 3,
       },
     ).catch((cause: unknown) => cause);
     expect(error).toBeInstanceOf(Error);
@@ -281,12 +284,13 @@ describe("RankTrackingService management invariants", () => {
       configId: "config_1",
       projectId: "project_1",
       billingCustomer,
-      maxCostCredits: 11,
+      // 2 keywords x 2 devices x $0.002 live = 2 credits per check -> 8.
+      maxCostCredits: 7,
     }).catch((cause: unknown) => cause);
     expect(error).toBeInstanceOf(Error);
     if (!(error instanceof Error) || !("code" in error)) throw error;
     expect(error.code).toBe("VALIDATION_ERROR");
-    expect(error.message).toContain("costs 12 credits");
+    expect(error.message).toContain("costs 8 credits");
     expect(mocks.beginRankCheckRun).not.toHaveBeenCalled();
   });
 
@@ -301,11 +305,11 @@ describe("RankTrackingService management invariants", () => {
         configId: "config_1",
         projectId: "project_1",
         billingCustomer,
-        maxCostCredits: 12,
+        maxCostCredits: 8,
       }),
     ).resolves.toEqual({ ok: true, runId: "run_1" });
     expect(mocks.beginRankCheckRun).toHaveBeenCalledWith(
-      expect.objectContaining({ maxCostCredits: 12 }),
+      expect.objectContaining({ maxCostCredits: 8 }),
     );
   });
 

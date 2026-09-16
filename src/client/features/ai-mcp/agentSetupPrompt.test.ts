@@ -3,7 +3,7 @@ import { getAgentSetupPrompt } from "./agentSetupPrompt";
 
 describe("agent setup prompt", () => {
   it("copies the installer body without its internal skill metadata", () => {
-    const prompt = getAgentSetupPrompt("http://localhost:3010");
+    const prompt = getAgentSetupPrompt("http://localhost:3001");
     expect(prompt).toContain("Identify this agent and its version");
     expect(prompt).not.toContain("I use Codex");
     expect(prompt).not.toContain("internal: true");
@@ -19,7 +19,7 @@ describe("agent setup prompt", () => {
     const prompt = getAgentSetupPrompt("https://seo.example.com");
     expect(prompt).toContain("https://seo.example.com/mcp");
     expect(prompt).toContain("https://seo.example.com/settings");
-    expect(prompt).not.toContain("http://localhost:3010");
+    expect(prompt).not.toContain("http://localhost:3001");
     expect(prompt).toContain(
       "https://github.com/ahmadaimee/seo-agent/blob/main/docs/mcp",
     );

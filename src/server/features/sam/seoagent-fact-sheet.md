@@ -98,7 +98,7 @@ S.E.O Agent exposes an MCP server so compatible AI clients can call S.E.O Agent 
 Hosted MCP endpoint:
 
 ```txt
-http://localhost:3010/mcp
+http://localhost:3001/mcp
 ```
 
 The first MCP connection sends the user through S.E.O Agent login and authorization. After authorization, the MCP client can call S.E.O Agent tools with the project context and account scopes the user approved.
