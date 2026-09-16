@@ -12,7 +12,7 @@ For plugin installs, verify and reinstall through Claude Code:
 ```bash
 /plugin list
 /plugin marketplace add ahmadaimee/seo-agent
-/plugin install claude-seo@ahmadaimee-claude-seo
+/plugin install seo-agent@seo-agent
 ```
 
 For manual installs:
@@ -71,7 +71,7 @@ Do not install individual packages, use `pip --user`, or create a PATH shim.
 **Solution:** For plugin installs, reinstall the plugin first:
 
 ```bash
-/plugin install claude-seo@ahmadaimee-claude-seo
+/plugin install seo-agent@seo-agent
 ```
 
 For manual installs, requirements.txt is copied to the skill directory:
@@ -130,7 +130,7 @@ chmod +x ~/.claude/skills/seo/scripts/*.py
 
 **Solution:**
 
-For plugin installs, check `/plugin list` and reinstall `claude-seo@ahmadaimee-claude-seo`; subagents load from the plugin, not `~/.claude/agents/`.
+For plugin installs, check `/plugin list` and reinstall `seo-agent@seo-agent`; subagents load from the plugin, not `~/.claude/agents/`.
 
 For manual installs:
 

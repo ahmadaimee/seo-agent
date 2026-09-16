@@ -33,8 +33,8 @@ unchanged.
 ### `/seo setup`
 
 Explicitly create or refresh the isolated Python runtime and Playwright Chromium.
-This is required once after a marketplace plugin install. Manual installers run
-the same setup automatically. It never installs packages globally.
+This is required once after installing the plugin. It never installs packages
+globally.
 
 ### `/seo doctor`
 

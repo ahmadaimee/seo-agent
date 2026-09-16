@@ -236,13 +236,11 @@ Skills and agents therefore call the launcher by its plugin-relative path,
 `"${CLAUDE_PLUGIN_ROOT}/scripts/claude-seo" run <script.py>`, which Claude Code
 expands in skill body content, in `allowed-tools` Bash rules, and as an
 environment variable for hook processes. The quoting keeps the command correct
-when the plugin root contains spaces. Manual installers (`install.sh`,
-`install.ps1`) copy the launcher to `~/.claude/skills/seo/scripts/claude-seo`
-and rewrite that canonical token to the absolute path in every Markdown file
-they install, because a manual install has no plugin root.
+when the plugin root contains spaces. The plugin is installed through the
+marketplace, so the plugin root always exists and the canonical token never has
+to be rewritten.
 
-Plugin environments live under persistent `CLAUDE_PLUGIN_DATA`. Manual installs
-keep the compatible `~/.claude/skills/seo/.venv` location. A state marker records
+Plugin environments live under persistent `CLAUDE_PLUGIN_DATA`. A state marker records
 the runtime schema, requirements SHA-256, Python major and minor version, public
 plugin version, and browser state. Requirements, runtime-schema, or Python ABI
 changes require explicit setup; a version-only difference remains compatible and
