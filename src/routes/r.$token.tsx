@@ -1,47 +1,74 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Lock } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
 import { SharedReportView } from "@/client/features/audit/share/SharedReportView";
-import { getSharedAuditReport } from "@/serverFunctions/auditShare";
+import type { SharedReportEndpointResult } from "@/server/features/audit/services/sharedReportEndpoint";
 
 /**
  * Public, read-only audit report.
  *
  * Deliberately outside every authenticated layout: the share token in the path
  * is the credential, so a recipient with no account (and no access to the
- * workspace) can open it. The loader runs the same unauthenticated server
- * function the password form re-submits to.
+ * workspace) can open it.
+ *
+ * Rendered client-side against a plain API route rather than through a route
+ * loader and a server function. Server functions all run the global function
+ * middleware (see src/start.ts), which includes ensureUser — so a "public"
+ * server function is not actually public, and an anonymous recipient hit the
+ * auth path instead of the report. The API route carries no such middleware,
+ * and using it for both the first load and the password unlock keeps one code
+ * path for one piece of data.
  */
 export const Route = createFileRoute("/r/$token")({
-  loader: async ({ params }) =>
-    getSharedAuditReport({ data: { shareToken: params.token } }),
+  ssr: false,
   component: SharedReportPage,
 });
 
-function SharedReportPage() {
-  const initial = Route.useLoaderData();
-  const { token } = Route.useParams();
-  const [unlocked, setUnlocked] = useState<typeof initial | null>(null);
-  const result = unlocked ?? initial;
+async function fetchSharedReport(
+  shareToken: string,
+  password?: string,
+): Promise<SharedReportEndpointResult> {
+  const response = await fetch("/api/audit/shared-report", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ shareToken, password }),
+  });
+  if (!response.ok) throw new Error("Could not open the report");
+  return response.json();
+}
 
-  // Not the server function: those POST to /_serverFn, which the self-host
-  // Basic-auth guard protects, and a share-link recipient has no credentials
-  // for it. The loader above can use it because it runs during SSR.
+function SharedReportPage() {
+  const { token } = Route.useParams();
+  const [unlocked, setUnlocked] = useState<SharedReportEndpointResult | null>(
+    null,
+  );
+
+  const initial = useQuery({
+    queryKey: ["shared-report", token],
+    queryFn: () => fetchSharedReport(token),
+    // The token either opens the report or it does not; retrying a miss just
+    // delays the "not available" card.
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
   const unlock = useMutation({
-    mutationFn: async (password: string): Promise<typeof initial> => {
-      const response = await fetch("/api/audit/shared-report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareToken: token, password }),
-      });
-      if (!response.ok) throw new Error("Could not open the report");
-      return response.json();
-    },
+    mutationFn: (password: string) => fetchSharedReport(token, password),
     onSuccess: setUnlocked,
   });
 
-  if (result.state === "not-found") {
+  const result = unlocked ?? initial.data;
+
+  if (initial.isPending) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-base-200/40">
+        <Loader2 className="size-6 animate-spin text-base-content/40" />
+      </div>
+    );
+  }
+
+  if (!result || result.state === "not-found") {
     return (
       <CenteredCard title="This report is not available">
         <p className="text-sm text-base-content/60">

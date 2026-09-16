@@ -11,6 +11,10 @@
 import { AuditService } from "@/server/features/audit/services/AuditService";
 import { getSharedAuditReportSchema } from "@/types/schemas/audit";
 
+export type SharedReportEndpointResult = Awaited<
+  ReturnType<typeof AuditService.getSharedReport>
+>;
+
 export async function handleSharedReportRequest(
   request: Request,
 ): Promise<Response> {

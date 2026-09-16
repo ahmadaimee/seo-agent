@@ -5,7 +5,6 @@ import { requireProjectContext } from "@/serverFunctions/middleware";
 import {
   auditShareStateSchema,
   createAuditShareLinkSchema,
-  getSharedAuditReportSchema,
   revokeAuditShareLinkSchema,
 } from "@/types/schemas/audit";
 
@@ -40,17 +39,7 @@ export const revokeAuditShareLink = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-/**
- * Deliberately unauthenticated: the share token in the URL is the credential,
- * and the optional password is checked inside the service. Runs without the
- * project middleware so a recipient with no account can open the report.
- */
-export const getSharedAuditReport = createServerFn({ method: "POST" })
-  .validator(getSharedAuditReportSchema)
-  .handler(async ({ data }) => {
-    return AuditService.getSharedReport({
-      shareToken: data.shareToken,
-      password: data.password ?? null,
-      viewToken: data.viewToken ?? null,
-    });
-  });
+// Reading a shared report deliberately has no server function. Server
+// functions all run the global function middleware (src/start.ts), which
+// includes ensureUser, so one could never be public. That read is served by
+// the plain route at /api/audit/shared-report instead.

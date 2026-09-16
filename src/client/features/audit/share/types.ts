@@ -1,8 +1,6 @@
-import type { getSharedAuditReport } from "@/serverFunctions/auditShare";
-
-type SharedReportResponse = Awaited<ReturnType<typeof getSharedAuditReport>>;
+import type { SharedReportEndpointResult } from "@/server/features/audit/services/sharedReportEndpoint";
 
 export type SharedAuditReport = Extract<
-  SharedReportResponse,
+  SharedReportEndpointResult,
   { state: "ok" }
 >["report"];
