@@ -57,37 +57,37 @@ For a hosted instance, set `SEO_AGENT_MCP_URL` and, when Basic auth is on,
 
 `/seo` is the orchestrator. Every sub-skill is also directly invocable.
 
-| Command | What it does | Data |
-| --- | --- | --- |
-| `/seo audit <url>` | Full site audit, up to 15 specialists in parallel, health score 0-100, expert or one-page report | local |
-| `/seo page <url>` | Deep single-page analysis | local |
-| `/seo technical <url>` | Crawlability, indexability, security, Core Web Vitals, JS rendering | local |
-| `/seo content <url>` | E-E-A-T, readability, thin content, AI citation readiness | local |
-| `/seo content-brief <topic>` | Competitive content brief with outline and internal links | local |
-| `/seo schema <url>` | Detect, validate and generate Schema.org markup | local |
-| `/seo sitemap <url>` | Analyze or generate XML sitemaps | local |
-| `/seo images <url>` | Alt text, formats, sizes, CLS, image SERP | local |
-| `/seo geo <url>` | AI Overviews, ChatGPT and Perplexity readiness | local |
-| `/seo sxo <url>` | Why a well-optimized page still does not rank | local |
-| `/seo hreflang <url>` | International SEO audit and generation | local |
-| `/seo drift baseline\|compare\|history <url>` | Catch SEO regressions after a deploy | local |
-| `/seo ecommerce <url>` | Product schema and marketplace visibility | local |
-| `/seo programmatic <url>` | Pages generated at scale, thin-content safeguards | local |
-| `/seo google <command> <url>` | Your own Search Console, PageSpeed, CrUX, GA4 | your data |
-| `/seo backlinks <url>` | Link profile: Moz, Bing, Common Crawl, then MCP | mixed |
-| `/seo keywords <seed>` | Volume, difficulty, intent, SERPs, rank tracking | MCP |
-| `/seo cluster <seed>` | SERP-overlap and intent clustering, keyword-to-page mapping, cannibalization | mixed |
-| `/seo competitor <domain>` | One competitor's footprint, keywords, themes, gaps | MCP |
-| `/seo landscape <topic>` | Who wins the market and where the openings are | MCP |
-| `/seo link-prospecting <url>` | Prospects, contact paths, outreach drafts | MCP |
-| `/seo local <url>` | Google Business Profile, NAP, citations, reviews, local schema | mixed |
-| `/seo maps <command>` | Geo-grid rank tracking, GBP audit, competitor radius | MCP |
-| `/seo plan <business-type>` | Strategic SEO plan | local |
-| `/seo competitor-pages <url>` | Generate comparison and alternatives pages | local |
-| `/seo flow <stage> <url>` | FLOW framework prompts (Find, Leverage, Optimize, Win) | local |
-| `/seo project-setup` | One interview that fills the shared project context | MCP |
-| `/seo coach` | Beginner-friendly coach mode | — |
-| `/seo setup` · `/seo doctor` | Build or check the local Python runtime | — |
+| Command                                       | What it does                                                                                     | Data      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------- |
+| `/seo audit <url>`                            | Full site audit, up to 15 specialists in parallel, health score 0-100, expert or one-page report | local     |
+| `/seo page <url>`                             | Deep single-page analysis                                                                        | local     |
+| `/seo technical <url>`                        | Crawlability, indexability, security, Core Web Vitals, JS rendering                              | local     |
+| `/seo content <url>`                          | E-E-A-T, readability, thin content, AI citation readiness                                        | local     |
+| `/seo content-brief <topic>`                  | Competitive content brief with outline and internal links                                        | local     |
+| `/seo schema <url>`                           | Detect, validate and generate Schema.org markup                                                  | local     |
+| `/seo sitemap <url>`                          | Analyze or generate XML sitemaps                                                                 | local     |
+| `/seo images <url>`                           | Alt text, formats, sizes, CLS, image SERP                                                        | local     |
+| `/seo geo <url>`                              | AI Overviews, ChatGPT and Perplexity readiness                                                   | local     |
+| `/seo sxo <url>`                              | Why a well-optimized page still does not rank                                                    | local     |
+| `/seo hreflang <url>`                         | International SEO audit and generation                                                           | local     |
+| `/seo drift baseline\|compare\|history <url>` | Catch SEO regressions after a deploy                                                             | local     |
+| `/seo ecommerce <url>`                        | Product schema and marketplace visibility                                                        | local     |
+| `/seo programmatic <url>`                     | Pages generated at scale, thin-content safeguards                                                | local     |
+| `/seo google <command> <url>`                 | Your own Search Console, PageSpeed, CrUX, GA4                                                    | your data |
+| `/seo backlinks <url>`                        | Link profile: Moz, Bing, Common Crawl, then MCP                                                  | mixed     |
+| `/seo keywords <seed>`                        | Volume, difficulty, intent, SERPs, rank tracking                                                 | MCP       |
+| `/seo cluster <seed>`                         | SERP-overlap and intent clustering, keyword-to-page mapping, cannibalization                     | mixed     |
+| `/seo competitor <domain>`                    | One competitor's footprint, keywords, themes, gaps                                               | MCP       |
+| `/seo landscape <topic>`                      | Who wins the market and where the openings are                                                   | MCP       |
+| `/seo link-prospecting <url>`                 | Prospects, contact paths, outreach drafts                                                        | MCP       |
+| `/seo local <url>`                            | Google Business Profile, NAP, citations, reviews, local schema                                   | mixed     |
+| `/seo maps <command>`                         | Geo-grid rank tracking, GBP audit, competitor radius                                             | MCP       |
+| `/seo plan <business-type>`                   | Strategic SEO plan                                                                               | local     |
+| `/seo competitor-pages <url>`                 | Generate comparison and alternatives pages                                                       | local     |
+| `/seo flow <stage> <url>`                     | FLOW framework prompts (Find, Leverage, Optimize, Win)                                           | local     |
+| `/seo project-setup`                          | One interview that fills the shared project context                                              | MCP       |
+| `/seo coach`                                  | Beginner-friendly coach mode                                                                     | —         |
+| `/seo setup` · `/seo doctor`                  | Build or check the local Python runtime                                                          | —         |
 
 ## Shared project context
 

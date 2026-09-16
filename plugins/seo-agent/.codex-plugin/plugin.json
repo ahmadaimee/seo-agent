@@ -39,9 +39,7 @@
     "longDescription": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
     "developerName": "S.E.O Agent",
     "category": "Productivity",
-    "capabilities": [
-      "Interactive"
-    ],
+    "capabilities": ["Interactive"],
     "websiteURL": "https://github.com/ahmadaimee/seo-agent",
     "privacyPolicyURL": "https://github.com/ahmadaimee/seo-agent/privacy",
     "termsOfServiceURL": "https://github.com/ahmadaimee/seo-agent/terms-and-conditions",
