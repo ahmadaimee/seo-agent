@@ -1,7 +1,7 @@
 {
   "name": "seo-agent",
-  "version": "1.0.0",
-  "description": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+  "version": "3.0.0",
+  "description": "Complete SEO for your agent: site audits, technical SEO, schema, content, Core Web Vitals, local and Maps, AI search and Google APIs on a bundled Python toolchain, plus keyword research, competitor intelligence, rank tracking and link prospecting from your own S.E.O Agent instance.",
   "author": {
     "name": "S.E.O Agent",
     "url": "https://github.com/ahmadaimee/seo-agent"
@@ -11,13 +11,18 @@
   "license": "MIT",
   "keywords": [
     "seo",
-    "keyword-research",
-    "serp",
+    "technical-seo",
     "site-audit",
-    "backlinks",
-    "search-console",
+    "keyword-research",
     "rank-tracking",
-    "local-seo"
+    "competitor-research",
+    "backlinks",
+    "schema-markup",
+    "core-web-vitals",
+    "local-seo",
+    "geo",
+    "ai-search",
+    "search-console"
   ],
   "skills": "./skills/",
   "mcpServers": {

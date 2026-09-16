@@ -1,8 +1,8 @@
 {
   "name": "seo-agent",
   "displayName": "S.E.O Agent",
-  "version": "1.0.0",
-  "description": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+  "version": "3.0.0",
+  "description": "Complete SEO for your agent: 31 skills and 18 sub-agents covering site audits, technical SEO, schema, content quality, Core Web Vitals, images, sitemaps, local and Maps, e-commerce, hreflang, AI search (GEO), drift monitoring and Google APIs on a bundled Python toolchain, plus keyword research, competitor and market intelligence, rank tracking, backlinks and link prospecting from your own self-hosted S.E.O Agent instance. No account, no subscription.",
   "author": {
     "name": "S.E.O Agent",
     "url": "https://github.com/ahmadaimee/seo-agent"
@@ -12,13 +12,36 @@
   "license": "MIT",
   "keywords": [
     "seo",
-    "keyword-research",
-    "serp",
+    "technical-seo",
     "site-audit",
-    "backlinks",
-    "search-console",
+    "keyword-research",
     "rank-tracking",
-    "local-seo"
+    "serp",
+    "competitor-research",
+    "backlinks",
+    "link-prospecting",
+    "content-quality",
+    "e-e-a-t",
+    "schema-markup",
+    "core-web-vitals",
+    "sitemap",
+    "image-optimization",
+    "hreflang",
+    "local-seo",
+    "google-maps",
+    "geo",
+    "ai-search",
+    "search-console",
+    "pagespeed",
+    "crux",
+    "ga4",
+    "semantic-clustering",
+    "sxo",
+    "drift-monitoring",
+    "ecommerce-seo",
+    "mcp-extensions",
+    "headless-rendering",
+    "ssrf-safe-fetchers"
   ],
   "mcpServers": {
     "seo-agent": {

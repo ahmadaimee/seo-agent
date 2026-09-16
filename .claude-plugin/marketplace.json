@@ -9,7 +9,7 @@
     {
       "name": "seo-agent",
       "source": "./plugins/seo-agent",
-      "description": "Free, self-hosted SEO data for your agent: keyword research, competitor research, backlinks, and site audits from your own S.E.O Agent instance (no account, no subscription).",
+      "description": "Complete SEO for your agent. 31 skills and 18 sub-agents: site audits, technical SEO, schema, content quality, Core Web Vitals, images, sitemaps, local and Maps, e-commerce, hreflang, AI search (GEO) and drift monitoring run free on a bundled Python toolchain; keyword research, competitor and market intelligence, rank tracking, backlinks and link prospecting come from your own self-hosted S.E.O Agent instance. No account, no subscription.",
       "category": "SEO"
     }
   ]

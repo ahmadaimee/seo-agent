@@ -9,8 +9,21 @@ routeTree.gen.ts
 # vendored skills are hash-pinned in skills-lock.json; don't reformat them
 .agents/skills/
 # real copies synced from .agents/skills/ via `pnpm sync-plugin-skills` — must
-# stay byte-identical to the canonical source, not reformatted
-plugins/seoagent/skills/
+# stay byte-identical to the canonical source, not reformatted.
+# (Was `plugins/seoagent/skills/` — a typo that matched nothing.)
+plugins/seo-agent/skills/
+# the rest of the plugin payload is vendored from ahmadaimee/claude-seo (MIT) and
+# tracks upstream; reformatting it would make every future sync a conflict
+plugins/seo-agent/agents/
+plugins/seo-agent/extensions/
+plugins/seo-agent/docs/
+plugins/seo-agent/tests/
+plugins/seo-agent/scripts/
+plugins/seo-agent/data/
+plugins/seo-agent/schema/
+plugins/seo-agent/pdf/
+plugins/seo-agent/hooks/
+plugins/seo-agent/AGENTS.md
 dist/
 drizzle/
 drizzle-pg/

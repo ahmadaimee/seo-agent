@@ -1,0 +1,5 @@
+MIT License - see repository root LICENSE file for complete terms.
+
+Copyright (c) 2026 Muhammad Ahmad
+Original work Copyright (c) 2026 AgriciDaniel
+https://github.com/ahmadaimee/claude-seo
