@@ -336,26 +336,6 @@ export async function maybeSendSelfHostHeartbeat(
   }
 }
 
-export async function incrementSelfHostMcpToolCallCount() {
-  try {
-    if (await telemetryIsDisabled()) return;
-    if (isNonProductionBuild()) return;
-
-    await db
-      .insert(telemetryState)
-      .values({
-        id: TELEMETRY_STATE_ID,
-        installId: crypto.randomUUID(),
-        installedAt: new Date(),
-        mcpToolCallCount: 1,
-      })
-      .onConflictDoUpdate({
-        target: telemetryState.id,
-        set: {
-          mcpToolCallCount: sql`${telemetryState.mcpToolCallCount} + 1`,
-        },
-      });
-  } catch (error) {
-    console.debug("self-host telemetry MCP counter failed", error);
-  }
-}
+// The per-tool-call counter that used to live here fed `mcpToolCalls` in the
+// heartbeat above. This fork does not phone home, so the call site was removed
+// from src/server/mcp/instrumentation.ts and the counter with it.

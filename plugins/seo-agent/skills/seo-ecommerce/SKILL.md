@@ -12,6 +12,7 @@ argument-hint: "<url or keyword>"
 license: MIT
 compatibility: "Enhanced with DataForSEO Merchant API (optional)"
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   original_author: "Matej Marjanovic (Pro Hub Challenge)"
   version: "3.0.0"

@@ -8,6 +8,7 @@ user-invocable: true
 argument-hint: "[url or generate]"
 license: MIT
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   version: "3.0.0"
   category: seo

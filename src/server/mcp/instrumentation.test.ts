@@ -9,7 +9,6 @@ const mocks = vi.hoisted(() => ({
   captureServerError: vi.fn(),
   captureServerEvent: vi.fn(),
   recordExternalMcpToolCall: vi.fn(),
-  incrementSelfHostMcpToolCallCount: vi.fn(),
 }));
 
 // waitUntil runs the capture promise inline so assertions see the call.
@@ -26,10 +25,6 @@ vi.mock("@/server/lib/posthog", () => ({
 // assert the milestone hook at this boundary instead.
 vi.mock("@/server/features/activation/mcpActivation", () => ({
   recordExternalMcpToolCall: mocks.recordExternalMcpToolCall,
-}));
-
-vi.mock("@/server/lib/self-host-telemetry", () => ({
-  incrementSelfHostMcpToolCallCount: mocks.incrementSelfHostMcpToolCallCount,
 }));
 
 const outputSchema = z.object({
@@ -58,7 +53,6 @@ describe("instrumentMcpToolHandler", () => {
     mocks.captureServerError.mockReset();
     mocks.captureServerEvent.mockReset();
     mocks.recordExternalMcpToolCall.mockReset();
-    mocks.incrementSelfHostMcpToolCallCount.mockReset();
   });
 
   it("passes a valid result through without reporting", async () => {
@@ -117,7 +111,6 @@ describe("instrumentMcpToolHandler", () => {
     await wrapped({}, toolContext);
 
     expect(mocks.captureServerEvent).toHaveBeenCalledTimes(1);
-    expect(mocks.incrementSelfHostMcpToolCallCount).toHaveBeenCalledTimes(1);
     expect(mocks.captureServerEvent.mock.calls[0][0]).toMatchObject({
       distinctId: "user-1",
       event: "mcp:tool_call",

@@ -12,6 +12,7 @@ argument-hint: "[command] [query]"
 license: MIT
 compatibility: "Requires DataForSEO MCP server"
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   version: "3.0.0"
   category: seo

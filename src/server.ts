@@ -111,9 +111,20 @@ function basicAuthGuard(
   env: Env,
   pathname: string,
 ): Response | undefined {
-  const bag = env as unknown as Record<string, string | undefined>;
-  const user = bag.SELFHOST_BASIC_AUTH_USER;
-  const password = bag.SELFHOST_BASIC_AUTH_PASSWORD;
+  // Neither binding is on the generated Env type. `in`-narrowing plus a typeof
+  // check reads them without a cast: the previous assertion claimed they were
+  // strings, which the type checker could not confirm and which would have fed
+  // a non-string straight into btoa().
+  const user =
+    "SELFHOST_BASIC_AUTH_USER" in env &&
+    typeof env.SELFHOST_BASIC_AUTH_USER === "string"
+      ? env.SELFHOST_BASIC_AUTH_USER
+      : undefined;
+  const password =
+    "SELFHOST_BASIC_AUTH_PASSWORD" in env &&
+    typeof env.SELFHOST_BASIC_AUTH_PASSWORD === "string"
+      ? env.SELFHOST_BASIC_AUTH_PASSWORD
+      : undefined;
   if (!user || !password || pathname === "/api/health") return undefined;
 
   const header = request.headers.get("authorization") ?? "";

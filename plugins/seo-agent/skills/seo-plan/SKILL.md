@@ -10,6 +10,7 @@ user-invocable: true
 argument-hint: "[business-type]"
 license: MIT
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   version: "3.0.0"
   category: seo

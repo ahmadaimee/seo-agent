@@ -11,6 +11,7 @@ user-invocable: true
 argument-hint: "[command] [url|property]"
 license: MIT
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   version: "3.0.0"
   category: seo

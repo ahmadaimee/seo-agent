@@ -11,6 +11,7 @@ user-invocable: true
 argument-hint: "[url-or-keyword] [page-type]"
 license: MIT
 metadata:
+  requiresLocalRuntime: true
   author: puneetindersingh
   original_author: puneetindersingh
   version: "3.0.0"

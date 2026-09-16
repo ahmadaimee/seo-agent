@@ -11,6 +11,7 @@ user-invocable: true
 argument-hint: "<url> [keyword]"
 license: MIT
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   original_author: "Florian Schmitz (Pro Hub Challenge)"
   version: "3.0.0"

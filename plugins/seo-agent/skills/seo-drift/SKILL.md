@@ -10,6 +10,7 @@ user-invocable: true
 argument-hint: "baseline|compare|history <url>"
 license: MIT
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   original_author: "Dan Colta (Pro Hub Challenge)"
   version: "3.0.0"

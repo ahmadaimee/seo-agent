@@ -6,6 +6,7 @@ user-invocable: true
 license: MIT
 compatibility: "Requires nanobanana MCP server"
 metadata:
+  requiresLocalRuntime: true
   author: ahmadaimee
   version: "3.0.0"
   category: seo
