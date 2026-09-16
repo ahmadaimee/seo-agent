@@ -7,8 +7,12 @@ describe("agent setup prompt", () => {
     expect(prompt).toContain("Identify this agent and its version");
     expect(prompt).not.toContain("I use Codex");
     expect(prompt).not.toContain("internal: true");
-    expect(prompt).toContain("https://github.com/ahmadaimee/seo-agent/blob/main/docs/codex-plugin");
-    expect(prompt).toContain("https://github.com/ahmadaimee/seo-agent/blob/main/docs/skills/setup");
+    expect(prompt).toContain(
+      "https://github.com/ahmadaimee/seo-agent/blob/main/docs/codex-plugin",
+    );
+    expect(prompt).toContain(
+      "https://github.com/ahmadaimee/seo-agent/blob/main/docs/skills/setup",
+    );
     expect(prompt).toContain("whoami and list_projects");
   });
   it("uses the current instance for MCP and API keys while keeping public docs links", () => {
@@ -16,7 +20,9 @@ describe("agent setup prompt", () => {
     expect(prompt).toContain("https://seo.example.com/mcp");
     expect(prompt).toContain("https://seo.example.com/settings");
     expect(prompt).not.toContain("http://localhost:3010");
-    expect(prompt).toContain("https://github.com/ahmadaimee/seo-agent/blob/main/docs/mcp");
+    expect(prompt).toContain(
+      "https://github.com/ahmadaimee/seo-agent/blob/main/docs/mcp",
+    );
     expect(prompt).not.toContain("I use Other agent");
   });
 });

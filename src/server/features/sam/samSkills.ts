@@ -4,8 +4,13 @@ import { z } from "zod";
 import type { SkillSource } from "agents/skills";
 
 // Bundle the repo's public-facing skills (.agents/skills) into SAM at build
-// time. Skills marked `metadata.internal: true` are repo-dev tooling and stay
-// out. The glob names the dot-directory literally, so Vite matches it.
+// time. Two markers keep skills out:
+//   - `metadata.internal: true` — repo-dev tooling.
+//   - `metadata.requiresLocalRuntime: true` — needs the plugin's bundled Python
+//     toolchain (crawler, headless Chromium, local files). SAM runs in the
+//     Worker with no filesystem and no Python, so serving these would advertise
+//     work it cannot perform. They remain available in the Claude Code plugin.
+// The glob names the dot-directory literally, so Vite matches it.
 //
 // The source implements the `SkillSource` interface by hand (type-only import
 // above): the `agents/skills` runtime module drags in the skill-*script*
@@ -38,11 +43,18 @@ type SamSkill = { name: string; description: string; body: string };
 const frontmatterSchema = z.looseObject({
   name: z.string().min(1),
   description: z.string().min(1),
-  metadata: z.looseObject({ internal: z.boolean().optional() }).optional(),
+  metadata: z
+    .looseObject({
+      internal: z.boolean().optional(),
+      requiresLocalRuntime: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 function parseSkill(path: string, raw: string): SamSkill | null {
-  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(raw);
+  // Tolerate CRLF: a Windows checkout (core.autocrlf) stores these files with
+  // \r\n, which an LF-only pattern silently rejects as "no frontmatter".
+  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(raw);
   if (!match) throw new Error(`Skill has no frontmatter: ${path}`);
   const parsed = frontmatterSchema.safeParse(parseYaml(match[1]));
   if (!parsed.success) {
@@ -50,6 +62,7 @@ function parseSkill(path: string, raw: string): SamSkill | null {
   }
   const frontmatter = parsed.data;
   if (frontmatter.metadata?.internal === true) return null;
+  if (frontmatter.metadata?.requiresLocalRuntime === true) return null;
   // Public for `npx skills add` users but not an in-app workflow: it drafts
   // GitHub issues for contributors, which SAM has no surface for.
   if (frontmatter.name === "simple-issue-description") return null;

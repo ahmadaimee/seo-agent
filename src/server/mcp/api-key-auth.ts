@@ -158,7 +158,12 @@ export async function handleMcpApiKeyRequest(
 
     await recordMcpAuthorized(organizationId);
 
-    return await handleAuthenticatedSeoAgentMcpRequest(request, props, env, ctx);
+    return await handleAuthenticatedSeoAgentMcpRequest(
+      request,
+      props,
+      env,
+      ctx,
+    );
   } catch (error) {
     // Without this, a throw here surfaces as a bare platform 500 with no log
     // breadcrumb.

@@ -1,6 +1,14 @@
 ---
 name: seo-coach
-description: Enter a friendly S.E.O Agent coach mode that explains workflows, recommends next steps, and helps users use agents, web search, scraping, and MCP data effectively.
+description: "Enter a friendly S.E.O Agent coach mode that explains workflows, recommends next steps, and helps users use agents, web search, scraping, and MCP data effectively."
+user-invocable: true
+argument-hint: ""
+license: MIT
+metadata:
+  author: ahmadaimee
+  version: "3.0.0"
+  category: seo
+  data-source: seo-agent-mcp
 ---
 
 # S.E.O Agent Coach
@@ -37,8 +45,8 @@ Example:
 I can coach you through this. Are you new to SEO, or do you mostly want help using S.E.O Agent faster?
 
 Good starting points:
+- Get a one-page audit of your site (free, runs locally)
 - Set up SEO project context
-- Get a one-page audit of your site
 - Find keyword opportunities
 - Map keywords to pages
 - Study a competitor
@@ -47,14 +55,42 @@ Good starting points:
 
 ## What each workflow does
 
-- `seo-project-setup`: verifies MCP, interviews the user about scope, goals, positioning, competitors, and key pages, and saves it all to the project's shared context. Also connects Google Search Console (or imports GSC exports).
-- `seo-audit`: audits a site and produces a one-page, plain-language report built around a single next action. The right first workflow for anyone with an existing site, especially beginners.
-- `keyword-research`: finds search opportunities from seed topics and evaluates volume, difficulty, CPC, intent, and SERPs.
-- `keyword-clustering`: groups keywords by intent and maps clusters to existing or proposed pages.
-- `competitive-landscape`: identifies who wins across a market and what content/backlink patterns are working.
-- `competitor-analysis`: studies one competitor's keywords, content themes, backlink profile, and gaps.
-- `local-seo`: audits a Google Business Profile against local competitors and maps Maps visibility around a location.
-- `link-prospecting`: finds likely link opportunities, discovers contact paths, and drafts outreach.
+Two families. Say which one you are reaching for and why.
+
+**Runs locally, free, no account** (bundled Python toolchain: crawler, headless
+Chromium, schema, content, images):
+
+- `seo-audit`: crawls the site, runs up to 15 specialists in parallel, scores it
+  0-100, and delivers either an expert report or a one-page plain-language report
+  built around a single next action. The right first workflow for anyone with an
+  existing site.
+- `seo-page`: deep analysis of one URL.
+- `seo-technical`: crawlability, indexability, security, Core Web Vitals, JS rendering.
+- `seo-content`: E-E-A-T, readability, thin content, AI citation readiness.
+- `seo-content-brief`: a competitive brief for one page.
+- `seo-schema`: detect, validate and generate structured data.
+- `seo-sitemap`, `seo-images`, `seo-hreflang`, `seo-programmatic`: the specialist audits.
+- `seo-geo`: AI Overviews, ChatGPT and Perplexity readiness.
+- `seo-sxo`: why a well-optimized page still does not rank.
+- `seo-drift`: baseline the site, then detect regressions after a deploy.
+- `seo-ecommerce`: product schema and marketplace visibility.
+- `seo-google`: the user's own Search Console, PageSpeed, CrUX and GA4 data.
+- `seo-plan`, `seo-competitor-pages`, `seo-flow`: strategy and page generation.
+
+**Needs a connected S.E.O Agent instance** (keyword and SERP data, paid per call):
+
+- `seo-project-setup`: interviews the user once about scope, goals, positioning,
+  competitors and key pages, and saves it to the project's shared context. Also
+  connects Google Search Console.
+- `seo-keywords`: finds opportunities from seed topics and evaluates volume,
+  difficulty, CPC, intent and SERPs. Also sets up rank tracking.
+- `seo-cluster`: groups keywords by SERP overlap and intent, maps each cluster to a
+  page, and catches cannibalization.
+- `seo-landscape`: who wins a market and what content and backlink patterns work.
+- `seo-competitor`: one competitor's keywords, content themes, backlinks and gaps.
+- `seo-local` and `seo-maps`: Google Business Profile against local competitors, and
+  Maps visibility across a grid.
+- `seo-backlinks` and `seo-link-prospecting`: the link profile, then the outreach.
 
 ## Tool coaching
 
@@ -108,10 +144,11 @@ Offer concise options based on context:
 - "Let's set up project context first."
 - "Let's audit your site and find the one thing to do first."
 - "Let's research keywords from your seed topics."
-- "Let's cluster your GSC/query export into page targets."
+- "Let's cluster your Search Console queries into page targets."
 - "Let's map the competitive landscape before choosing pages."
 - "Let's study one competitor."
 - "Let's find link prospects for your best linkable asset."
+- "Let's check the technical basics -- that one runs free, no credits."
 
 ## Guardrails
 

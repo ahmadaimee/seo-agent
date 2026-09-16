@@ -1,0 +1,23 @@
+[project]
+name = "seo-agent-plugin"
+version = "3.0.0"
+description = "Bundled Python toolchain for the S.E.O Agent Claude Code plugin"
+requires-python = ">=3.10"
+license = "MIT"
+readme = "README.md"
+authors = [
+  {name = "Muhammad Ahmad"}
+]
+keywords = ["seo", "claude-code", "ai-tools", "schema-markup", "e-e-a-t", "geo"]
+
+[project.urls]
+Homepage = "https://github.com/ahmadaimee/seo-agent"
+Repository = "https://github.com/ahmadaimee/seo-agent"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]

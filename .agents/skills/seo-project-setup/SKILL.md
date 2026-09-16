@@ -1,6 +1,14 @@
 ---
 name: seo-project-setup
-description: Populate a project's shared S.E.O Agent context — site scope, goals, positioning, competitors, key pages, and preferences — plus MCP checks and Search Console intake.
+description: "Populate a project's shared S.E.O Agent context — site scope, goals, positioning, competitors, key pages, and preferences — plus MCP checks and Search Console intake."
+user-invocable: true
+argument-hint: "[domain]"
+license: MIT
+metadata:
+  author: ahmadaimee
+  version: "3.0.0"
+  category: seo
+  data-source: seo-agent-mcp
 ---
 
 # S.E.O Agent SEO Project Setup
@@ -98,7 +106,7 @@ Write to `positioning`: audience, the problem, the differentiator, and any claim
 
 Turn the competitors and substitutes from step 5 into `addCompetitors` entries: one row per domain, with a short `notes` line on why they matter ("direct competitor, owns the comparison pages"). If the user is unsure who competes in search, `find_serp_competitors` on a handful of seed keywords will name them — confirm the list with the user before saving, and log the spend.
 
-Competitors saved here are reused by `competitive-landscape`, `competitor-analysis`, and `link-prospecting`.
+Competitors saved here are reused by `seo-landscape`, `seo-competitor`, and `seo-link-prospecting`.
 
 ### 7. Inventory key assets
 
@@ -118,7 +126,7 @@ Save the pages that actually matter with `addKeyPages` — money pages, topic hu
 
 GSC is the richest first-party signal: existing impressions, near-ranking terms, cannibalization, and pages that already have search demand.
 
-**Preferred (hosted): connect it natively.** On the project's Integrations page, connect Google Search Console and pull live data with `get_search_console_performance`. Once connected, the agent reads it directly in `keyword-research` and `keyword-clustering` — no manual files to maintain.
+**Preferred (hosted): connect it natively.** On the project's Integrations page, connect Google Search Console and pull live data with `get_search_console_performance`. Once connected, the agent reads it directly in `seo-keywords` and `seo-cluster` — no manual files to maintain.
 
 **Fallback (self-hosted, or if the user prefers files):** ask the user to export CSVs from Search Console into a local working folder (see step 9).
 
@@ -158,11 +166,11 @@ Do not create folders unless the user asks, and do not duplicate goals, position
 After intake, recommend one next S.E.O Agent workflow:
 
 - `seo-audit`: when the site already exists and the user wants to know what to fix or do first, especially if they are new to SEO
-- `keyword-research`: when the user needs ideas from seed topics
-- `keyword-clustering`: when they have keywords or GSC data to map to pages
-- `competitive-landscape`: when the market is unclear
-- `competitor-analysis`: when they know a competitor to study
-- `link-prospecting`: when they have a linkable asset or target page
+- `seo-keywords`: when the user needs ideas from seed topics
+- `seo-cluster`: when they have keywords or GSC data to map to pages
+- `seo-landscape`: when the market is unclear
+- `seo-competitor`: when they know a competitor to study
+- `seo-link-prospecting`: when they have a linkable asset or target page
 
 ## Output format
 

@@ -121,25 +121,40 @@ function isUnguardedPath(pathname: string): boolean {
   );
 }
 
-/** Read an optional string binding that is not on the generated Env type. */
-function optionalEnvString(env: Env, key: string): string | undefined {
-  const value = Reflect.get(env, key) as unknown;
-  return typeof value === "string" ? value : undefined;
-}
-
-function basicAuthGuard(request: Request, env: Env, pathname: string): Response | undefined {
-  const user = optionalEnvString(env, "SELFHOST_BASIC_AUTH_USER");
-  const password = optionalEnvString(env, "SELFHOST_BASIC_AUTH_PASSWORD");
+function basicAuthGuard(
+  request: Request,
+  env: Env,
+  pathname: string,
+): Response | undefined {
+  // Neither binding is on the generated Env type. `in`-narrowing plus a typeof
+  // check reads them without a cast: the previous assertion claimed they were
+  // strings, which the type checker could not confirm and which would have fed
+  // a non-string straight into btoa().
+  const user =
+    "SELFHOST_BASIC_AUTH_USER" in env &&
+    typeof env.SELFHOST_BASIC_AUTH_USER === "string"
+      ? env.SELFHOST_BASIC_AUTH_USER
+      : undefined;
+  const password =
+    "SELFHOST_BASIC_AUTH_PASSWORD" in env &&
+    typeof env.SELFHOST_BASIC_AUTH_PASSWORD === "string"
+      ? env.SELFHOST_BASIC_AUTH_PASSWORD
+      : undefined;
   if (!user || !password || isUnguardedPath(pathname)) return undefined;
 
   const header = request.headers.get("authorization") ?? "";
   const expected = `Basic ${btoa(`${user}:${password}`)}`;
-  if (header.length === expected.length && timingSafeEqualString(header, expected)) {
+  if (
+    header.length === expected.length &&
+    timingSafeEqualString(header, expected)
+  ) {
     return undefined;
   }
   return new Response("Authentication required", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="S.E.O Agent", charset="UTF-8"' },
+    headers: {
+      "WWW-Authenticate": 'Basic realm="S.E.O Agent", charset="UTF-8"',
+    },
   });
 }
 
@@ -156,7 +171,6 @@ function handleFetch(
   env: Env,
   ctx: ExecutionContext,
 ): Response | Promise<Response> {
-
   const authMode = getAuthMode(env.AUTH_MODE);
   const publicRequest = requestWithPublicOrigin(request);
   const pathname = new URL(publicRequest.url).pathname;
@@ -188,7 +202,12 @@ function handleFetch(
     (authMode === "cloudflare_access" || authMode === "local_noauth") &&
     pathname === MCP_ROUTE
   ) {
-    return handleSelfHostedSeoAgentMcpRequest(publicRequest, authMode, env, ctx);
+    return handleSelfHostedSeoAgentMcpRequest(
+      publicRequest,
+      authMode,
+      env,
+      ctx,
+    );
   }
 
   return appFetch(request);

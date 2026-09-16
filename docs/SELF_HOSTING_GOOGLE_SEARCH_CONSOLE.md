@@ -39,10 +39,10 @@ Under **APIs & Services → Credentials → Create credentials → OAuth client 
 2. Add an **Authorized redirect URI** that exactly matches your deployment's
    origin plus `/api/gsc/oauth/callback`:
 
-   | Deployment   | Redirect URI                                             |
-   | ------------ | -------------------------------------------------------- |
-   | Railway      | `https://your-seoagent-domain.com/api/gsc/oauth/callback` |
-   | Local dev    | `http://localhost:3001/api/gsc/oauth/callback`           |
+   | Deployment | Redirect URI                                              |
+   | ---------- | --------------------------------------------------------- |
+   | Railway    | `https://your-seoagent-domain.com/api/gsc/oauth/callback` |
+   | Local dev  | `http://localhost:3001/api/gsc/oauth/callback`            |
 
    The scheme, host, and port must match exactly, with no trailing slash.
 

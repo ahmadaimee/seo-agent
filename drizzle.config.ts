@@ -14,7 +14,9 @@ function findSqliteFile(basePath: string): string | undefined {
 function getLocalD1Url(): string | null {
   const basePath = path.resolve(".wrangler");
   if (!fs.existsSync(basePath)) {
-    console.error("WARNING: .wrangler directory not found (expected in CI). Run `npm run dev` once to create the local D1 database.");
+    console.error(
+      "WARNING: .wrangler directory not found (expected in CI). Run `npm run dev` once to create the local D1 database.",
+    );
     return null;
   }
   let dbFile = findSqliteFile(basePath);
@@ -22,13 +24,20 @@ function getLocalD1Url(): string | null {
     const wrangler = fs.readFileSync(path.resolve("wrangler.jsonc"), "utf-8");
     const databaseName = /"database_name"\s*:\s*"([^"]+)"/.exec(wrangler)?.[1];
     if (!databaseName) {
-      throw new Error("Could not find database_name in wrangler.jsonc d1_databases configuration");
+      throw new Error(
+        "Could not find database_name in wrangler.jsonc d1_databases configuration",
+      );
     }
     console.log(`Initializing local D1 database: ${databaseName}...`);
-    execSync(`npx wrangler d1 execute ${databaseName} --local --command "SELECT 1;"`, { stdio: "pipe" });
+    execSync(
+      `npx wrangler d1 execute ${databaseName} --local --command "SELECT 1;"`,
+      { stdio: "pipe" },
+    );
     dbFile = findSqliteFile(basePath);
     if (!dbFile) {
-      throw new Error("Failed to initialize local D1 database. The sqlite file was not created.");
+      throw new Error(
+        "Failed to initialize local D1 database. The sqlite file was not created.",
+      );
     }
   }
   return path.resolve(basePath, dbFile);

@@ -22,6 +22,10 @@ export const HOSTED_PROD_STAGE = "hosted-prod";
 export const workerName = (stage: string) =>
   stage === HOSTED_PROD_STAGE ? WORKER_PREFIX : `${WORKER_PREFIX}-${stage}`;
 
+// The preview-wildcard hostname helper that used to live here had a single
+// consumer, alchemy.preview-access.run.ts, which this fork does not ship. It
+// was removed rather than kept as an export nothing imports.
+
 export const readWorkersSubdomain = ({ required }: { required: boolean }) =>
   Effect.gen(function* () {
     const subdomain = (yield* Config.string("WORKERS_SUBDOMAIN").pipe(

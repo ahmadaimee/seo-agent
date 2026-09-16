@@ -28,8 +28,8 @@ function PrivacyPage() {
         <h2>Who operates this site</h2>
         <p>
           badseo.dev is operated by Every App, Inc. as a public test site for
-          S.E.O Agent. The site has no accounts, forms, purchases, or user-submitted
-          content. Privacy questions and requests can be sent to{" "}
+          S.E.O Agent. The site has no accounts, forms, purchases, or
+          user-submitted content. Privacy questions and requests can be sent to{" "}
           <a href="mailto:support@example.com">support@example.com</a>.
         </p>
 
@@ -52,8 +52,9 @@ function PrivacyPage() {
         <h2>Google Analytics</h2>
         <p>
           Separately, with your permission, we use Google Analytics 4 to
-          understand traffic in the analytics product many S.E.O Agent users use.
-          The Google tag does not load until you select <strong>Accept</strong>
+          understand traffic in the analytics product many S.E.O Agent users
+          use. The Google tag does not load until you select{" "}
+          <strong>Accept</strong>
           in the analytics banner.
         </p>
         <p>
