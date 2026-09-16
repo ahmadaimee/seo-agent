@@ -14,13 +14,21 @@ import {
   projects,
 } from "@/db/schema";
 import { executeInBatches } from "@/db/runBatch";
+import {
+  getLighthouseResultById,
+  insertLighthouseResults,
+} from "@/server/features/audit/repositories/auditLighthouseQueries";
+import {
+  getAuditByShareToken,
+  getAuditResultsById,
+  setAuditShare,
+} from "@/server/features/audit/repositories/auditShareQueries";
 import { AUDIT_ISSUE_TYPES } from "@/shared/audit-issues";
 import { deterministicAuditRowId } from "@/server/lib/audit/ids";
 import type { DetectedIssue } from "@/server/lib/audit/issues/page-reporters";
 import type {
   AuditConfig,
   CrawledPageResult,
-  LighthouseResult,
 } from "@/server/lib/audit/types";
 import type { PageFetchClass } from "@/shared/audit-fetch-class";
 
@@ -170,6 +178,15 @@ async function insertCrawledBatch(
       ogTitle: page.ogTitle,
       ogDescription: page.ogDescription,
       ogImage: page.ogImage,
+      ogImageUrl: page.ogImageUrl,
+      ogImageAlt: page.ogImageAlt,
+      ogImageWidth: page.ogImageWidth,
+      ogImageHeight: page.ogImageHeight,
+      twitterImage: page.twitterImage,
+      faviconsJson: JSON.stringify(page.favicons),
+      googleSiteVerification: page.googleSiteVerification,
+      bingSiteVerification: page.bingSiteVerification,
+      analyticsIdsJson: JSON.stringify(page.analyticsIds),
       h1Count: page.h1Count,
       h2Count: page.h2Count,
       h3Count: page.h3Count,
@@ -221,44 +238,6 @@ async function insertIssues(auditId: string, issues: DetectedIssue[]) {
   await executeInBatches(issueRows, (tx, row) =>
     tx.insert(auditIssues).values(row).onConflictDoNothing(),
   );
-}
-
-async function insertLighthouseResults(
-  auditId: string,
-  lighthouseResults: LighthouseResult[],
-) {
-  const rows = await Promise.all(
-    lighthouseResults.map(async (result) => ({
-      id: await deterministicAuditRowId(
-        auditId,
-        result.pageId,
-        result.strategy,
-      ),
-      auditId,
-      pageId: result.pageId,
-      strategy: result.strategy,
-      performanceScore: result.performanceScore,
-      accessibilityScore: result.accessibilityScore,
-      bestPracticesScore: result.bestPracticesScore,
-      seoScore: result.seoScore,
-      lcpMs: result.lcpMs,
-      cls: result.cls,
-      inpMs: result.inpMs,
-      ttfbMs: result.ttfbMs,
-      errorMessage: result.errorMessage ?? null,
-      r2Key: result.r2Key ?? null,
-      payloadSizeBytes: result.payloadSizeBytes ?? null,
-    })),
-  );
-  // The persistence step is retryable after its paid provider result has been
-  // checkpointed, so repeated writes must stay idempotent.
-  await executeInBatches(rows, (tx, row) => {
-    const { id: _id, auditId: _auditId, ...dataColumns } = row;
-    return tx.insert(auditLighthouseResults).values(row).onConflictDoUpdate({
-      target: auditLighthouseResults.id,
-      set: dataColumns,
-    });
-  });
 }
 
 async function getAuditForProject(auditId: string, projectId: string) {
@@ -389,41 +368,6 @@ async function getAuditResultsForProject(auditId: string, projectId: string) {
   return { audit, pages, lighthouse, issues };
 }
 
-async function getLighthouseResultById(input: {
-  lighthouseResultId: string;
-  projectId: string;
-}) {
-  const lighthouse = await db.query.auditLighthouseResults.findFirst({
-    where: eq(auditLighthouseResults.id, input.lighthouseResultId),
-  });
-
-  if (!lighthouse) {
-    return null;
-  }
-
-  const [parentAudit, page] = await Promise.all([
-    db.query.audits.findFirst({
-      where: and(
-        eq(audits.id, lighthouse.auditId),
-        eq(audits.projectId, input.projectId),
-      ),
-    }),
-    db.query.auditPages.findFirst({
-      where: eq(auditPages.id, lighthouse.pageId),
-    }),
-  ]);
-
-  if (!parentAudit) {
-    return null;
-  }
-
-  return {
-    lighthouse,
-    page,
-    audit: parentAudit,
-  };
-}
-
 async function deleteAuditForProject(auditId: string, projectId: string) {
   await db
     .delete(audits)
@@ -448,6 +392,9 @@ export const AuditRepository = {
   getAuditsByProject,
   getAuditUsageForOrganization,
   getAuditResultsForProject,
+  getAuditResultsById,
+  setAuditShare,
+  getAuditByShareToken,
   getLighthouseResultById,
   deleteAuditForProject,
 } as const;

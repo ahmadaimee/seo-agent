@@ -44,6 +44,31 @@ export const getCrawlProgressSchema = z.object({
   auditId: z.string().min(1),
 });
 
+export const auditShareStateSchema = z.object({
+  projectId: z.string().min(1),
+  auditId: z.string().min(1),
+});
+
+export const createAuditShareLinkSchema = z.object({
+  projectId: z.string().min(1),
+  auditId: z.string().min(1),
+  // Optional second factor on top of the unguessable token. Trimmed and
+  // length-checked here so an accidental whitespace password cannot be set.
+  password: z.string().trim().min(4).max(200).nullish(),
+});
+
+export const revokeAuditShareLinkSchema = z.object({
+  projectId: z.string().min(1),
+  auditId: z.string().min(1),
+});
+
+/** Public: the share token is the only credential, so no project id. */
+export const getSharedAuditReportSchema = z.object({
+  shareToken: z.string().min(8).max(128),
+  password: z.string().max(200).nullish(),
+  viewToken: z.string().max(400).nullish(),
+});
+
 // ─── URL search params schema for /p/$projectId/audit ────────────────────────
 
 const auditTabs = ["issues", "pages", "performance"] as const;

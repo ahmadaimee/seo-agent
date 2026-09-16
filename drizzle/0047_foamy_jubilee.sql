@@ -1,0 +1,14 @@
+ALTER TABLE `audit_lighthouse_results` ADD `screenshot_r2_key` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `og_image_url` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `og_image_alt` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `og_image_width` integer;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `og_image_height` integer;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `twitter_image` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `favicons_json` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `google_site_verification` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `bing_site_verification` text;--> statement-breakpoint
+ALTER TABLE `audit_pages` ADD `analytics_ids_json` text;--> statement-breakpoint
+ALTER TABLE `audits` ADD `share_token` text;--> statement-breakpoint
+ALTER TABLE `audits` ADD `share_password_hash` text;--> statement-breakpoint
+ALTER TABLE `audits` ADD `share_created_at` text;--> statement-breakpoint
+CREATE UNIQUE INDEX `audits_share_token_idx` ON `audits` (`share_token`);

@@ -41,8 +41,8 @@ Under **APIs & Services → Credentials → Create credentials → OAuth client 
 
    | Deployment   | Redirect URI                                             |
    | ------------ | -------------------------------------------------------- |
-   | Deployed     | `https://your-seoagent-domain.com/api/gsc/oauth/callback` |
-   | Local Docker | `http://localhost:3001/api/gsc/oauth/callback`           |
+   | Railway      | `https://your-seoagent-domain.com/api/gsc/oauth/callback` |
+   | Local dev    | `http://localhost:3001/api/gsc/oauth/callback`           |
 
    The scheme, host, and port must match exactly, with no trailing slash.
 
@@ -68,18 +68,14 @@ openssl rand -base64 32
 
 Where to set them:
 
-- **Docker self-hosting:** `.env`
+- **Railway self-hosting:** service variables
 - **Cloudflare:** the Workers dashboard (as secrets)
 - **Local development:** `.env.local`
 
 ## 5) Restart and connect
 
-Restart S.E.O Agent so it picks up the new variables. For Docker, changing `.env`
-means Compose has to recreate the container to reapply it:
-
-```bash
-docker compose up -d --force-recreate seo-agent
-```
+Restart S.E.O Agent so it picks up the new variables. On Railway, saving a
+service variable triggers a redeploy on its own; wait for it to go healthy.
 
 Then open **Integrations**, click **Connect with Google**, authorize the Google
 account that owns your verified property, and pick the property to bind to your
@@ -102,12 +98,7 @@ must exactly equal `<your-origin>/api/gsc/oauth/callback`. Re-check scheme
 **"Google OAuth client not configured" / "not configured for Search Console yet"**
 (in the app or via the MCP tools) — one of `GOOGLE_CLIENT_ID`,
 `GOOGLE_CLIENT_SECRET`, or `BETTER_AUTH_SECRET` is missing, or the secret is
-shorter than 32 characters. Set all three and restart. On Docker, recreate the
-container so Compose reapplies `.env`:
-
-```bash
-docker compose up -d --force-recreate seo-agent
-```
+shorter than 32 characters. Set all three and redeploy.
 
 **`access_denied` during sign-in** — the Google account isn't listed as a test
 user on the OAuth consent screen (while the app is in Testing mode). Add it under

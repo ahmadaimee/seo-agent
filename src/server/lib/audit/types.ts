@@ -48,6 +48,23 @@ export interface PageLink {
   isNofollow: boolean;
 }
 
+/**
+ * One declared favicon/touch-icon from the page head. Google reads
+ * rel="icon", rel="shortcut icon" and the apple-touch-icon variants; a
+ * rel="mask-icon" (Safari pinned tab) is deliberately not collected because
+ * search engines do not use it.
+ */
+export interface PageFavicon {
+  /** Normalized rel token list, e.g. "icon" or "apple-touch-icon". */
+  rel: string;
+  /** href exactly as authored, so a relative reference stays recognizable. */
+  href: string;
+  /** Absolute http(s) URL; null for data:/blob:/unresolvable hrefs. */
+  resolvedUrl: string | null;
+  sizes: string | null;
+  type: string | null;
+}
+
 /** Data extracted from a single page's HTML. */
 export interface PageAnalysis {
   url: string;
@@ -63,6 +80,19 @@ export interface PageAnalysis {
   ogTitle: string | null;
   ogDescription: string | null;
   ogImage: string | null;
+  ogImageAlt: string | null;
+  ogImageWidth: number | null;
+  ogImageHeight: number | null;
+  twitterImage: string | null;
+
+  // Favicons declared in <head>
+  favicons: PageFavicon[];
+
+  // Site ownership and measurement tags
+  googleSiteVerification: string | null;
+  bingSiteVerification: string | null;
+  /** GA4, Google Tag Manager and legacy Universal Analytics ids, sorted. */
+  analyticsIds: string[];
 
   // Headings
   h1s: string[];
@@ -101,6 +131,8 @@ export interface LighthouseResult {
   errorMessage?: string | null;
   r2Key?: string | null;
   payloadSizeBytes?: number | null;
+  /** R2 object holding the rendered page screenshot, when the run produced one. */
+  screenshotR2Key?: string | null;
 }
 
 /**
@@ -123,6 +155,16 @@ export interface CrawledPageResult {
   ogTitle: string | null;
   ogDescription: string | null;
   ogImage: string | null;
+  /** og:image resolved against the page URL; null when it is not http(s). */
+  ogImageUrl: string | null;
+  ogImageAlt: string | null;
+  ogImageWidth: number | null;
+  ogImageHeight: number | null;
+  twitterImage: string | null;
+  favicons: PageFavicon[];
+  googleSiteVerification: string | null;
+  bingSiteVerification: string | null;
+  analyticsIds: string[];
   h1Count: number;
   h2Count: number;
   h3Count: number;

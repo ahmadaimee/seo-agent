@@ -176,6 +176,20 @@
       "when": 1788651419109,
       "tag": "0024_tense_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1789592555718,
+      "tag": "0025_tense_puck",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1789596029484,
+      "tag": "0026_brave_shiva",
+      "breakpoints": true
     }
   ]
 }

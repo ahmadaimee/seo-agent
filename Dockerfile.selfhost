@@ -4,6 +4,19 @@ FROM node:22
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 
+# Baseline runtime env. These used to live in compose.yaml; with Railway as the
+# only deployment target they belong in the image, where they cannot be
+# forgotten in a dashboard. Railway service variables still override them.
+#
+# CLOUDFLARE_INCLUDE_PROCESS_ENV is load-bearing: without it the process
+# environment never reaches the cloudflare:workers bindings, so the app boots
+# with no DataForSEO key however the variables were set.
+ENV CLOUDFLARE_INCLUDE_PROCESS_ENV=true
+ENV AUTH_MODE=local_noauth
+ENV SEO_AGENT_TELEMETRY_DISABLED=1
+ENV DO_NOT_TRACK=1
+ENV VITE_SHOW_DEVTOOLS=false
+
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate

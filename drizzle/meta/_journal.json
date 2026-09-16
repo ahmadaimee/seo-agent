@@ -330,6 +330,20 @@
       "when": 1788651415740,
       "tag": "0046_plain_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1789592554219,
+      "tag": "0047_foamy_jubilee",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1789596026115,
+      "tag": "0048_spooky_speed_demon",
+      "breakpoints": true
     }
   ]
 }

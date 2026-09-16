@@ -201,6 +201,20 @@ export async function crawlPage(
       ogTitle: analysis.ogTitle,
       ogDescription: analysis.ogDescription,
       ogImage: analysis.ogImage,
+      // Resolved separately from the raw value: the raw one is what the
+      // "og:image must be absolute" check reads, the resolved one is what the
+      // reachability check fetches.
+      ogImageUrl: analysis.ogImage
+        ? normalizeUrl(analysis.ogImage, url)
+        : null,
+      ogImageAlt: analysis.ogImageAlt,
+      ogImageWidth: analysis.ogImageWidth,
+      ogImageHeight: analysis.ogImageHeight,
+      twitterImage: analysis.twitterImage,
+      favicons: analysis.favicons,
+      googleSiteVerification: analysis.googleSiteVerification,
+      bingSiteVerification: analysis.bingSiteVerification,
+      analyticsIds: analysis.analyticsIds,
       h1Count: analysis.h1s.filter((h) => h.length > 0).length,
       h2Count: headingCount(2),
       h3Count: headingCount(3),
@@ -309,6 +323,15 @@ function emptyPageResult(input: {
     ogTitle: null,
     ogDescription: null,
     ogImage: null,
+    ogImageUrl: null,
+    ogImageAlt: null,
+    ogImageWidth: null,
+    ogImageHeight: null,
+    twitterImage: null,
+    favicons: [],
+    googleSiteVerification: null,
+    bingSiteVerification: null,
+    analyticsIds: [],
     h1Count: 0,
     h2Count: 0,
     h3Count: 0,

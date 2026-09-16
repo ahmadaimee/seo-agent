@@ -22,11 +22,6 @@ export const HOSTED_PROD_STAGE = "hosted-prod";
 export const workerName = (stage: string) =>
   stage === HOSTED_PROD_STAGE ? WORKER_PREFIX : `${WORKER_PREFIX}-${stage}`;
 
-// Matches every preview worker hostname; production's unsuffixed worker does
-// not match (Access allows one wildcard per dot-label).
-export const previewWildcard = (subdomain: string) =>
-  `${WORKER_PREFIX}-*.${subdomain}`;
-
 export const readWorkersSubdomain = ({ required }: { required: boolean }) =>
   Effect.gen(function* () {
     const subdomain = (yield* Config.string("WORKERS_SUBDOMAIN").pipe(

@@ -106,11 +106,31 @@ function fetch(
 // (e.g. Railway) in local_noauth mode. Set SELFHOST_BASIC_AUTH_USER and
 // SELFHOST_BASIC_AUTH_PASSWORD; unset = no guard (local Docker). /api/health
 // stays open for platform health checks (it only reports setup status).
+/**
+ * Paths the Basic-auth guard lets through. /api/health stays open for platform
+ * health checks (it only reports setup status). Shared audit reports carry
+ * their own credential in the URL — the whole point is that a recipient with
+ * no workspace account can open them — so the guard would defeat them.
+ */
+function isUnguardedPath(pathname: string): boolean {
+  return (
+    pathname === "/api/health" ||
+    pathname.startsWith("/r/") ||
+    pathname === "/api/audit/shared-report" ||
+    pathname === "/api/audit/screenshot"
+  );
+}
+
+/** Read an optional string binding that is not on the generated Env type. */
+function optionalEnvString(env: Env, key: string): string | undefined {
+  const value = Reflect.get(env, key) as unknown;
+  return typeof value === "string" ? value : undefined;
+}
+
 function basicAuthGuard(request: Request, env: Env, pathname: string): Response | undefined {
-  const bag = env as unknown as Record<string, string | undefined>;
-  const user = bag.SELFHOST_BASIC_AUTH_USER;
-  const password = bag.SELFHOST_BASIC_AUTH_PASSWORD;
-  if (!user || !password || pathname === "/api/health") return undefined;
+  const user = optionalEnvString(env, "SELFHOST_BASIC_AUTH_USER");
+  const password = optionalEnvString(env, "SELFHOST_BASIC_AUTH_PASSWORD");
+  if (!user || !password || isUnguardedPath(pathname)) return undefined;
 
   const header = request.headers.get("authorization") ?? "";
   const expected = `Basic ${btoa(`${user}:${password}`)}`;

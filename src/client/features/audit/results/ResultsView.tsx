@@ -16,6 +16,7 @@ import {
   ExportDropdown,
   PerformanceTable,
 } from "@/client/features/audit/results/ResultsTables";
+import { ShareLinkButton } from "@/client/features/audit/share/ShareLinkButton";
 
 type ResultsTab = "issues" | "pages" | "performance";
 
@@ -104,6 +105,9 @@ export function ResultsView({
       <div className="card bg-base-100 border border-base-300">
         <div className="card-body gap-3">
           <ResultsHeader
+            auditId={audit.id}
+            projectId={projectId}
+            canShare={audit.status !== "running"}
             issueCount={issues.length}
             pageCount={pages.length}
             lighthouseCount={lighthouse.length}
@@ -209,6 +213,9 @@ function useResultStats(
 }
 
 function ResultsHeader({
+  auditId,
+  projectId,
+  canShare,
   issueCount,
   pageCount,
   lighthouseCount,
@@ -217,6 +224,9 @@ function ResultsHeader({
   onTabChange,
   onExport,
 }: {
+  auditId: string;
+  projectId: string;
+  canShare: boolean;
   issueCount: number;
   pageCount: number;
   lighthouseCount: number;
@@ -259,7 +269,14 @@ function ResultsHeader({
         })}
       </div>
 
-      <ExportDropdown onExport={onExport} />
+      <div className="flex items-center gap-1">
+        <ShareLinkButton
+          auditId={auditId}
+          projectId={projectId}
+          disabled={!canShare}
+        />
+        <ExportDropdown onExport={onExport} />
+      </div>
     </div>
   );
 }

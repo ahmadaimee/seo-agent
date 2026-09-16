@@ -181,7 +181,10 @@ async function buildInventory(db: Db, user: UserRow) {
     projectIds.length === 0
       ? []
       : await db
-          .selectDistinct({ r2Key: schema.auditLighthouseResults.r2Key })
+          .selectDistinct({
+            r2Key: schema.auditLighthouseResults.r2Key,
+            screenshotR2Key: schema.auditLighthouseResults.screenshotR2Key,
+          })
           .from(schema.auditLighthouseResults)
           .innerJoin(
             schema.audits,
@@ -190,11 +193,24 @@ async function buildInventory(db: Db, user: UserRow) {
           .where(
             and(
               inArray(schema.audits.projectId, projectIds),
-              isNotNull(schema.auditLighthouseResults.r2Key),
+              or(
+                isNotNull(schema.auditLighthouseResults.r2Key),
+                isNotNull(schema.auditLighthouseResults.screenshotR2Key),
+              ),
             ),
           )
           .orderBy(schema.auditLighthouseResults.r2Key);
-  const r2Keys = r2Rows.flatMap((row) => (row.r2Key ? [row.r2Key] : []));
+  // A Lighthouse row owns two objects: the stored report and the screenshot.
+  // Both must go, so collect them into one sorted, deduplicated key list.
+  const r2Keys = Array.from(
+    new Set(
+      r2Rows.flatMap((row) =>
+        [row.r2Key, row.screenshotR2Key].filter(
+          (key): key is string => key !== null,
+        ),
+      ),
+    ),
+  ).sort();
 
   const googleAccountRows = await db
     .selectDistinct({

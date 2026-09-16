@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   buildStoredLighthouseIssues,
   buildStoredLighthouseMetrics,
+  extractLighthouseScreenshot,
   type RawLighthouseAudit,
   type RawLighthouseCategory,
   scoreToPercent,
@@ -116,6 +117,7 @@ export function parseDataforseoLighthousePayload(
     },
     metrics,
     issues: issueReport.issues,
+    screenshot: extractLighthouseScreenshot(audits),
   };
 
   const allScoresMissing = Object.values(storedPayload.scores).every(

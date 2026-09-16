@@ -15,8 +15,9 @@ const statement = {
   ...defaultStatements,
   // Subscribe, top-ups, Stripe portal, cancel. Owner-only.
   billing: ["manage"],
-  // Create + archive/restore projects. Renames/settings stay open to all.
-  project: ["create", "delete"],
+  // Create + archive/restore projects, and publish an audit outside the
+  // workspace as a share link. Renames/settings stay open to all.
+  project: ["create", "delete", "share"],
   // GSC/GA4 connect, re-point, disconnect.
   integration: ["manage"],
 } as const;
@@ -27,12 +28,12 @@ export const orgRoles = {
   owner: orgAccessControl.newRole({
     ...ownerAc.statements,
     billing: ["manage"],
-    project: ["create", "delete"],
+    project: ["create", "delete", "share"],
     integration: ["manage"],
   }),
   admin: orgAccessControl.newRole({
     ...adminAc.statements,
-    project: ["create", "delete"],
+    project: ["create", "delete", "share"],
     integration: ["manage"],
   }),
   // Defined from day one so exposing it later is UI-only; not offered in the

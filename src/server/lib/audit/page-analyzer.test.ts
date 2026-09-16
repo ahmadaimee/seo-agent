@@ -5,9 +5,44 @@
  */
 import * as cheerio from "cheerio";
 import { describe, expect, it } from "vitest";
-import { analyzeHtml } from "@/server/lib/audit/page-analyzer";
+import {
+  analyzeHtml,
+  compareStrings,
+} from "@/server/lib/audit/page-analyzer";
 import { normalizeUrl, isSameOrigin } from "@/server/lib/audit/url-utils";
-import type { PageAnalysis, PageLink } from "@/server/lib/audit/types";
+import type {
+  PageAnalysis,
+  PageFavicon,
+  PageLink,
+} from "@/server/lib/audit/types";
+
+/** Mirrors FAVICON_REL_TOKENS in the analyzer. */
+const FAVICON_RELS = new Set([
+  "icon",
+  "apple-touch-icon",
+  "apple-touch-icon-precomposed",
+]);
+
+function toPositiveInt(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = Number.parseInt(value.trim(), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+/** Mirrors the analytics scan in the analyzer. */
+const ANALYTICS_ID_PATTERN =
+  /\b(?:GTM-[A-Z0-9]{4,10}|G-[A-Z0-9]{8,12}|UA-\d{4,10}-\d{1,4})\b/g;
+const ANALYTICS_MARKER_PATTERN =
+  /googletagmanager|google-analytics|gtag\(|dataLayer/;
+
+function collectAnalyticsIds(text: string, into: Set<string>): void {
+  if (into.size >= 10 || !text) return;
+  if (!ANALYTICS_MARKER_PATTERN.test(text)) return;
+  for (const match of text.matchAll(ANALYTICS_ID_PATTERN)) {
+    into.add(match[0]);
+    if (into.size >= 10) return;
+  }
+}
 
 /** The previous cheerio implementation, verbatim (minus passthrough fields). */
 function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
@@ -23,7 +58,43 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
   const ogDescription =
     $('meta[property="og:description"]').first().attr("content") ?? null;
   const ogImage =
-    $('meta[property="og:image"]').first().attr("content") ?? null;
+    $('meta[property="og:image"]').first().attr("content") ??
+    $(
+      'meta[property="og:image:url"], meta[property="og:image:secure_url"]',
+    )
+      .first()
+      .attr("content") ??
+    null;
+  const ogImageAlt =
+    $('meta[property="og:image:alt"]').first().attr("content") ?? null;
+  const ogImageWidth = toPositiveInt(
+    $('meta[property="og:image:width"]').first().attr("content"),
+  );
+  const ogImageHeight = toPositiveInt(
+    $('meta[property="og:image:height"]').first().attr("content"),
+  );
+  const twitterImage =
+    $(
+      'meta[name="twitter:image"], meta[name="twitter:image:src"], meta[property="twitter:image"], meta[property="twitter:image:src"]',
+    )
+      .first()
+      .attr("content") ?? null;
+
+  const favicons: PageFavicon[] = [];
+  $("link[href]").each((_, el) => {
+    if (favicons.length >= 20) return;
+    const href = $(el).attr("href")?.trim();
+    if (!href) return;
+    const relTokens = ($(el).attr("rel") ?? "").toLowerCase().split(/\s+/);
+    if (!relTokens.some((token) => FAVICON_RELS.has(token))) return;
+    favicons.push({
+      rel: relTokens.filter(Boolean).join(" "),
+      href,
+      resolvedUrl: normalizeUrl(href, pageUrl),
+      sizes: $(el).attr("sizes")?.trim() || null,
+      type: $(el).attr("type")?.trim().toLowerCase() || null,
+    });
+  });
 
   const h1s: string[] = [];
   $("h1").each((_, el) => {
@@ -84,6 +155,20 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
     if (hreflang) hreflangTags.push(hreflang);
   });
 
+  const googleSiteVerification =
+    $('meta[name="google-site-verification"]').first().attr("content")?.trim() ||
+    null;
+  const bingSiteVerification =
+    $('meta[name="msvalidate.01"]').first().attr("content")?.trim() || null;
+
+  const analyticsIdSet = new Set<string>();
+  $("script").each((_, el) => {
+    collectAnalyticsIds($(el).attr("src") ?? "", analyticsIdSet);
+    collectAnalyticsIds($(el).text(), analyticsIdSet);
+  });
+  const analyticsIds = Array.from(analyticsIdSet);
+  analyticsIds.sort(compareStrings);
+
   return {
     url: pageUrl,
     statusCode: 200,
@@ -96,6 +181,14 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
     ogTitle,
     ogDescription,
     ogImage,
+    ogImageAlt,
+    ogImageWidth,
+    ogImageHeight,
+    twitterImage,
+    favicons,
+    googleSiteVerification,
+    bingSiteVerification,
+    analyticsIds,
     h1s,
     headingOrder,
     wordCount,
@@ -125,9 +218,26 @@ describe("analyzeHtml parity with the DOM reference", () => {
         <meta property="og:title" content="OG Title">
         <meta property="og:description" content="OG Desc">
         <meta property="og:image" content="/og.png">
+        <meta property="og:image:alt" content="A preview">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:image" content="https://example.com/tw.png">
+        <meta name="google-site-verification" content=" gsc-token-123 ">
+        <meta name="msvalidate.01" content="BING-TOKEN-456">
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ABCDEFGH12"></script>
+        <script>window.dataLayer=window.dataLayer||[];gtag('config','G-ABCDEFGH12');</script>
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];})(window,document,'script','dataLayer','GTM-ABC1234');</script>
+        <script>var notAnId = "G-NOTTAGGED1";</script>
         <link rel="canonical" href="https://example.com/blog/post">
         <link rel="alternate" hreflang="en" href="/en">
         <link rel="alternate" hreflang="de" href="/de">
+        <link rel="icon" href="/favicon.ico">
+        <link rel="SHORTCUT Icon" href="/legacy.ico" type="image/X-ICON">
+        <link rel="apple-touch-icon" sizes=" 180x180 " href="/touch.png">
+        <link rel="mask-icon" href="/pinned.svg" color="#000">
+        <link rel="stylesheet" href="/site.css">
+        <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
+        <link rel="icon">
         <script type="application/ld+json">{"@type":"Article"}</script>
       </head><body>
         <h1>Main <em>Heading</em></h1>
