@@ -444,7 +444,11 @@ export function createSeoAgentOAuthProvider(appFetch: AppFetch) {
     (provider ??= createProvider(appFetch, getMcpResource(getHostedBaseUrl())));
 
   return {
-    async fetch(request: Request, env: SeoAgentOAuthEnv, ctx: ExecutionContext) {
+    async fetch(
+      request: Request,
+      env: SeoAgentOAuthEnv,
+      ctx: ExecutionContext,
+    ) {
       const url = new URL(request.url);
 
       const apiKeyResponse = await handleMcpApiKeyRequest(request, env, ctx);

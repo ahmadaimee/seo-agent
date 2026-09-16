@@ -44,8 +44,8 @@ export function SearchConsoleOnboardingStep() {
           Connect Google Search Console now?
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-base-content/60">
-          Bring your real clicks and queries into S.E.O Agent and your AI agent. You
-          can also do this later from the dashboard.
+          Bring your real clicks and queries into S.E.O Agent and your AI agent.
+          You can also do this later from the dashboard.
         </p>
       </div>
 

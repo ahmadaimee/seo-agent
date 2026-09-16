@@ -106,7 +106,11 @@ function fetch(
 // (e.g. Railway) in local_noauth mode. Set SELFHOST_BASIC_AUTH_USER and
 // SELFHOST_BASIC_AUTH_PASSWORD; unset = no guard (local Docker). /api/health
 // stays open for platform health checks (it only reports setup status).
-function basicAuthGuard(request: Request, env: Env, pathname: string): Response | undefined {
+function basicAuthGuard(
+  request: Request,
+  env: Env,
+  pathname: string,
+): Response | undefined {
   const bag = env as unknown as Record<string, string | undefined>;
   const user = bag.SELFHOST_BASIC_AUTH_USER;
   const password = bag.SELFHOST_BASIC_AUTH_PASSWORD;
@@ -114,12 +118,17 @@ function basicAuthGuard(request: Request, env: Env, pathname: string): Response 
 
   const header = request.headers.get("authorization") ?? "";
   const expected = `Basic ${btoa(`${user}:${password}`)}`;
-  if (header.length === expected.length && timingSafeEqualString(header, expected)) {
+  if (
+    header.length === expected.length &&
+    timingSafeEqualString(header, expected)
+  ) {
     return undefined;
   }
   return new Response("Authentication required", {
     status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="S.E.O Agent", charset="UTF-8"' },
+    headers: {
+      "WWW-Authenticate": 'Basic realm="S.E.O Agent", charset="UTF-8"',
+    },
   });
 }
 
@@ -136,7 +145,6 @@ function handleFetch(
   env: Env,
   ctx: ExecutionContext,
 ): Response | Promise<Response> {
-
   const authMode = getAuthMode(env.AUTH_MODE);
   const publicRequest = requestWithPublicOrigin(request);
   const pathname = new URL(publicRequest.url).pathname;
@@ -168,7 +176,12 @@ function handleFetch(
     (authMode === "cloudflare_access" || authMode === "local_noauth") &&
     pathname === MCP_ROUTE
   ) {
-    return handleSelfHostedSeoAgentMcpRequest(publicRequest, authMode, env, ctx);
+    return handleSelfHostedSeoAgentMcpRequest(
+      publicRequest,
+      authMode,
+      env,
+      ctx,
+    );
   }
 
   return appFetch(request);

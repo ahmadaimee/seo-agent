@@ -20,7 +20,9 @@ describe("jsonCodec", () => {
   });
 
   it("throws when JSON does not match schema", () => {
-    expect(() => codec.parse('{"name":"seo-agent","count":"2"}')).toThrowError();
+    expect(() =>
+      codec.parse('{"name":"seo-agent","count":"2"}'),
+    ).toThrowError();
   });
 
   it("encodes typed values to JSON", () => {

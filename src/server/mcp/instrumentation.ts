@@ -41,7 +41,6 @@ function captureMcpToolCall(
     quotaRemaining?: number;
   },
 ) {
-
   const auth = context.auth;
   waitUntil(
     captureServerEvent({

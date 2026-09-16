@@ -39,8 +39,8 @@ function SignedOutInvitationCard({ invitationId }: { invitationId: string }) {
   return (
     <AuthPageCard title="You&rsquo;re invited">
       <p className="text-sm text-base-content/70">
-        You&rsquo;ve been invited to join an organization on S.E.O Agent. Sign in
-        with the email address that received the invitation to accept it.
+        You&rsquo;ve been invited to join an organization on S.E.O Agent. Sign
+        in with the email address that received the invitation to accept it.
       </p>
       <div className="space-y-2">
         <Link

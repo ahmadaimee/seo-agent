@@ -68,8 +68,8 @@ export function DashboardSetupAction({
     return (
       <div className="max-w-2xl space-y-4">
         <p className="text-sm leading-relaxed text-base-content/65">
-          Paste this prompt into your agent to automatically configure S.E.O Agent
-          for you.
+          Paste this prompt into your agent to automatically configure S.E.O
+          Agent for you.
         </p>
         <div className="flex flex-col gap-4 rounded-lg border border-base-300 bg-base-200/25 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -16,9 +16,9 @@ function OpenrouterApiKeyHelpPage() {
               Set up your OpenRouter API key
             </h1>
             <p className="text-sm text-base-content/70">
-              S.E.O Agent needs the <code>OPENROUTER_API_KEY</code> secret before AI
-              features like SAM, the in-app SEO agent, can run. It is optional —
-              everything else in S.E.O Agent works without it.
+              S.E.O Agent needs the <code>OPENROUTER_API_KEY</code> secret
+              before AI features like SAM, the in-app SEO agent, can run. It is
+              optional — everything else in S.E.O Agent works without it.
             </p>
           </div>
         </div>

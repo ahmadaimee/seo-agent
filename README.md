@@ -33,11 +33,11 @@ Skills: `/seo-project-setup`, `/keyword-research`, `/keyword-clustering`, `/comp
 
 ## What needs a key
 
-| Feature | Needs |
-|---|---|
-| Keywords, SERPs, backlinks, rank tracking, audits (Lighthouse), AI visibility | `DATAFORSEO_API_KEY` |
-| SAM, the in-app chat agent | `OPENROUTER_API_KEY` (optional) |
-| Google Search Console / GA4 | your own Google OAuth client + `BETTER_AUTH_SECRET` (optional, free) |
+| Feature                                                                       | Needs                                                                |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Keywords, SERPs, backlinks, rank tracking, audits (Lighthouse), AI visibility | `DATAFORSEO_API_KEY`                                                 |
+| SAM, the in-app chat agent                                                    | `OPENROUTER_API_KEY` (optional)                                      |
+| Google Search Console / GA4                                                   | your own Google OAuth client + `BETTER_AUTH_SECRET` (optional, free) |
 
 ## Stack
 

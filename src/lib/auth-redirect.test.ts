@@ -96,7 +96,9 @@ describe("auth redirect helpers", () => {
     expect(redirect).toContain("state=state-123");
     expect(redirect).toContain("code_challenge=challenge-123");
     expect(redirect).toContain("code_challenge_method=S256");
-    expect(redirect).toContain("resource=https%3A%2F%2Fapp.github.com/ahmadaimee/seo-agent%2Fmcp");
+    expect(redirect).toContain(
+      "resource=https%3A%2F%2Fapp.github.com/ahmadaimee/seo-agent%2Fmcp",
+    );
     expect(redirect).toContain("exp=1778271800");
     expect(redirect).toContain("sig=signed-value");
   });
