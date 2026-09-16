@@ -59,7 +59,11 @@ export function SharedReportView({
     : ["issues", "pages"];
 
   return (
-    <div className="min-h-screen bg-base-200/40">
+    // html/body are height:100% overflow:hidden (see app.css) because the
+    // authenticated shell scrolls its own main pane. This route renders
+    // outside that shell, so it has to be its own scroll container or the
+    // report is simply clipped at the fold.
+    <div className="h-screen overflow-y-auto bg-base-200/40">
       <header className="border-b border-base-300 bg-base-100">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
           <p className="text-xs uppercase tracking-wider text-base-content/50">
