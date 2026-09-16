@@ -5,10 +5,7 @@
  */
 import * as cheerio from "cheerio";
 import { describe, expect, it } from "vitest";
-import {
-  analyzeHtml,
-  compareStrings,
-} from "@/server/lib/audit/page-analyzer";
+import { analyzeHtml, compareStrings } from "@/server/lib/audit/page-analyzer";
 import { normalizeUrl, isSameOrigin } from "@/server/lib/audit/url-utils";
 import type {
   PageAnalysis,
@@ -59,9 +56,7 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
     $('meta[property="og:description"]').first().attr("content") ?? null;
   const ogImage =
     $('meta[property="og:image"]').first().attr("content") ??
-    $(
-      'meta[property="og:image:url"], meta[property="og:image:secure_url"]',
-    )
+    $('meta[property="og:image:url"], meta[property="og:image:secure_url"]')
       .first()
       .attr("content") ??
     null;
@@ -156,8 +151,10 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
   });
 
   const googleSiteVerification =
-    $('meta[name="google-site-verification"]').first().attr("content")?.trim() ||
-    null;
+    $('meta[name="google-site-verification"]')
+      .first()
+      .attr("content")
+      ?.trim() || null;
   const bingSiteVerification =
     $('meta[name="msvalidate.01"]').first().attr("content")?.trim() || null;
 

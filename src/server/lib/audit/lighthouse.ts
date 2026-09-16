@@ -110,7 +110,10 @@ export async function storeLighthouseResult(input: {
 
   const { pageId, strategy } = input.fetched.result;
   const prefix = `site-audit/${input.projectId}/${input.auditId}/${pageId}-${strategy}`;
-  const uploaded = await putTextToR2(`${prefix}.json`, input.fetched.payloadJson);
+  const uploaded = await putTextToR2(
+    `${prefix}.json`,
+    input.fetched.payloadJson,
+  );
 
   return {
     ...input.fetched.result,

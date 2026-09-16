@@ -140,7 +140,9 @@ async function findHomepage(
     .where(eq(auditPages.auditId, auditId));
 
   const startKey = canonicalUrlKey(startUrl);
-  const candidates = rows.filter((row) => canonicalUrlKey(row.url) === startKey);
+  const candidates = rows.filter(
+    (row) => canonicalUrlKey(row.url) === startKey,
+  );
   const served = candidates.find(
     (row) =>
       row.fetchClass === "ok" &&
@@ -165,7 +167,9 @@ async function findHomepage(
 }
 
 /** Distinct og:image URLs across the audit, most-used first. */
-async function findOgImages(auditId: string): Promise<
+async function findOgImages(
+  auditId: string,
+): Promise<
   Array<{ imageUrl: string; page: SitePageRef; affectedPages: number }>
 > {
   const rows = await db
@@ -219,7 +223,9 @@ export async function runSiteChecks(input: {
   // declared, probe the implicit /favicon.ico every browser falls back to.
   const declaredFaviconUrl = pickFaviconToProbe(homepage.favicons);
   const faviconUrl =
-    homepage.favicons.length === 0 ? `${origin}/favicon.ico` : declaredFaviconUrl;
+    homepage.favicons.length === 0
+      ? `${origin}/favicon.ico`
+      : declaredFaviconUrl;
 
   const [llmsTxt, faviconProbe, ogImageProbes] = await Promise.all([
     probe(`${origin}/llms.txt`),

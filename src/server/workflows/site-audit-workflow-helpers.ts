@@ -204,9 +204,7 @@ export async function crawlPage(
       // Resolved separately from the raw value: the raw one is what the
       // "og:image must be absolute" check reads, the resolved one is what the
       // reachability check fetches.
-      ogImageUrl: analysis.ogImage
-        ? normalizeUrl(analysis.ogImage, url)
-        : null,
+      ogImageUrl: analysis.ogImage ? normalizeUrl(analysis.ogImage, url) : null,
       ogImageAlt: analysis.ogImageAlt,
       ogImageWidth: analysis.ogImageWidth,
       ogImageHeight: analysis.ogImageHeight,

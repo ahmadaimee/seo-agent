@@ -164,7 +164,10 @@ export async function verifyViewToken(
     const expected = new Uint8Array(
       await crypto.subtle.sign("HMAC", key, encoder.encode(expiresAtRaw)),
     );
-    return timingSafeEqual(fromBase64(viewToken.slice(separator + 1)), expected);
+    return timingSafeEqual(
+      fromBase64(viewToken.slice(separator + 1)),
+      expected,
+    );
   } catch {
     return false;
   }

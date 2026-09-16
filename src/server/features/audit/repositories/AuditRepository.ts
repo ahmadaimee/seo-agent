@@ -26,10 +26,7 @@ import {
 import { AUDIT_ISSUE_TYPES } from "@/shared/audit-issues";
 import { deterministicAuditRowId } from "@/server/lib/audit/ids";
 import type { DetectedIssue } from "@/server/lib/audit/issues/page-reporters";
-import type {
-  AuditConfig,
-  CrawledPageResult,
-} from "@/server/lib/audit/types";
+import type { AuditConfig, CrawledPageResult } from "@/server/lib/audit/types";
 import type { PageFetchClass } from "@/shared/audit-fetch-class";
 
 async function createAudit(data: {

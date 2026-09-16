@@ -11,6 +11,7 @@ Self-hosted SEO tool: Vite + TanStack Start (React) on the Cloudflare Workers ru
 - Shell scripts and Dockerfiles are LF (`.gitattributes`); keep it that way.
 
 ## Commands
+
 - `pnpm dev` — run locally on port 3001 (`pnpm run db:migrate:local` once first).
 - `pnpm run build` — vite build + `tsc --noEmit`; `pnpm lint`; `pnpm test`.
 - `pnpm sync-plugin-skills` after editing anything in `.agents/skills`.

@@ -202,8 +202,7 @@ function ShareDialog({
               type="button"
               className="btn btn-sm btn-primary w-full"
               disabled={
-                create.isPending ||
-                (usePassword && password.trim().length < 4)
+                create.isPending || (usePassword && password.trim().length < 4)
               }
               onClick={() => create.mutate()}
             >
@@ -213,7 +212,11 @@ function ShareDialog({
         )}
 
         <div className="mt-5 flex justify-end">
-          <button type="button" className="btn btn-sm btn-ghost" onClick={onClose}>
+          <button
+            type="button"
+            className="btn btn-sm btn-ghost"
+            onClick={onClose}
+          >
             Close
           </button>
         </div>

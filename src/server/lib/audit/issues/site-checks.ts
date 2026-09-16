@@ -232,7 +232,12 @@ function buildFaviconIssues(
     issueType: DetectedIssue["issueType"],
     details?: Record<string, unknown>,
   ) =>
-    issues.push({ issueType, pageId: homepage.id, pageUrl: homepage.url, details });
+    issues.push({
+      issueType,
+      pageId: homepage.id,
+      pageUrl: homepage.url,
+      details,
+    });
 
   if (favicon.declared.length === 0) {
     // Nothing declared: the browser default of /favicon.ico is the last thing

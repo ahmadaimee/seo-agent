@@ -286,7 +286,11 @@ async function getSharedReport(input: {
   if (!audit?.shareToken) return { state: "not-found" };
 
   if (!audit.sharePasswordHash) {
-    return { state: "ok", viewToken: null, report: await buildSharedReport(audit) };
+    return {
+      state: "ok",
+      viewToken: null,
+      report: await buildSharedReport(audit),
+    };
   }
 
   const unlocked =
@@ -329,10 +333,12 @@ async function buildSharedReport(audit: ShareableAudit) {
     // R2 keys embed the project and audit ids and are an internal storage
     // detail; the report only needs to know a screenshot exists, and fetches
     // it back through the share-authorized endpoint.
-    lighthouse: lighthouse.map(({ r2Key: _r2Key, screenshotR2Key, ...row }) => ({
-      ...row,
-      hasScreenshot: screenshotR2Key !== null,
-    })),
+    lighthouse: lighthouse.map(
+      ({ r2Key: _r2Key, screenshotR2Key, ...row }) => ({
+        ...row,
+        hasScreenshot: screenshotR2Key !== null,
+      }),
+    ),
     audit: {
       id: audit.id,
       startUrl: audit.startUrl,

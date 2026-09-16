@@ -248,9 +248,9 @@ describe("runPageReporters", () => {
     });
 
     it("flags a protocol-relative og:image, which scrapers mishandle", () => {
-      expect(issueTypes(makePage({ ogImage: "//cdn.example.com/og.png" }))).toContain(
-        "og-image-relative-url",
-      );
+      expect(
+        issueTypes(makePage({ ogImage: "//cdn.example.com/og.png" })),
+      ).toContain("og-image-relative-url");
     });
 
     it("accepts an absolute og:image whatever its case", () => {

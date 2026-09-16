@@ -87,8 +87,16 @@ export function SharedReportView({
           </p>
 
           <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SummaryStat label="Critical" value={severityCounts.critical} tone="text-error" />
-            <SummaryStat label="Warnings" value={severityCounts.warning} tone="text-warning" />
+            <SummaryStat
+              label="Critical"
+              value={severityCounts.critical}
+              tone="text-error"
+            />
+            <SummaryStat
+              label="Warnings"
+              value={severityCounts.warning}
+              tone="text-warning"
+            />
             <SummaryStat label="Notices" value={severityCounts.info} />
             <SummaryStat label="Pages" value={pages.length} />
           </dl>
@@ -248,5 +256,7 @@ function SharedPerformanceTable({
 
 function formatMs(value: number | null): string {
   if (value == null) return "-";
-  return value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${Math.round(value)}ms`;
+  return value >= 1000
+    ? `${(value / 1000).toFixed(1)}s`
+    : `${Math.round(value)}ms`;
 }

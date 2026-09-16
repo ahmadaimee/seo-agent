@@ -174,7 +174,7 @@ export const AUDIT_ISSUE_TYPES = {
     explanation:
       "The favicon declared on the home page does not load (it returns an error status, or the server answers with something that is not an image). Google only shows a favicon in search results when Googlebot-Image can fetch the file, so a broken reference means the generic globe icon next to every result for this site.",
     howToFix:
-      "Fix the path in the <link rel=\"icon\"> tag so it points at a file that really exists, and make sure the file is not blocked by robots.txt or your WAF. Serve it with an image content type (image/x-icon, image/png, ...).",
+      'Fix the path in the <link rel="icon"> tag so it points at a file that really exists, and make sure the file is not blocked by robots.txt or your WAF. Serve it with an image content type (image/x-icon, image/png, ...).',
   },
   "og-image-relative-url": {
     severity: "warning",
@@ -294,7 +294,7 @@ export const AUDIT_ISSUE_TYPES = {
     explanation:
       "The only favicon this page declares is in a format Google Search does not read (most often SVG). Browsers render it fine, so the tab icon looks right, but search results fall back to a generic icon.",
     howToFix:
-      "Keep the current icon for browsers and add a second <link rel=\"icon\"> pointing at an ICO or PNG version. Google supports BMP, GIF, ICO, PNG, JPEG, PPM and TIFF.",
+      'Keep the current icon for browsers and add a second <link rel="icon"> pointing at an ICO or PNG version. Google supports BMP, GIF, ICO, PNG, JPEG, PPM and TIFF.',
   },
   "missing-og-image": {
     severity: "info",
@@ -302,7 +302,7 @@ export const AUDIT_ISSUE_TYPES = {
     explanation:
       "The page declares no og:image and no twitter:image, so links to it share as a bare text snippet on social platforms, Slack, Discord and messaging apps. Previews with an image are clicked substantially more often.",
     howToFix:
-      "Add <meta property=\"og:image\" content=\"https://example.com/preview.png\"> with an absolute URL. 1200x630 pixels (1.91:1) is the size every major platform accepts; one good sitewide default beats none.",
+      'Add <meta property="og:image" content="https://example.com/preview.png"> with an absolute URL. 1200x630 pixels (1.91:1) is the size every major platform accepts; one good sitewide default beats none.',
   },
   "og-image-too-small": {
     severity: "info",

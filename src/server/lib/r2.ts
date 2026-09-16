@@ -38,7 +38,9 @@ export function decodeImageDataUri(dataUri: string): DecodedDataUri | null {
 }
 
 /** Fetch a stored binary object (e.g. an audit screenshot). */
-export async function getObjectFromR2(key: string): Promise<R2ObjectBody | null> {
+export async function getObjectFromR2(
+  key: string,
+): Promise<R2ObjectBody | null> {
   return env.R2.get(key);
 }
 

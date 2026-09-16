@@ -11,27 +11,27 @@ Run S.E.O Agent on [Railway](https://railway.com). This fork is self-host only: 
 
 ## Deploy
 
-1. **Create the service.** In your Railway project: *New → GitHub Repo →* this repository. Railway reads `railway.json` and builds from `Dockerfile.selfhost`; no builder settings to change.
+1. **Create the service.** In your Railway project: _New → GitHub Repo →_ this repository. Railway reads `railway.json` and builds from `Dockerfile.selfhost`; no builder settings to change.
 
 2. **Add a volume — do this before the first successful boot.** The SQLite (D1) database lives inside the container at `/app/.wrangler`. Without a volume mounted there, every redeploy starts from an empty database and all projects, audits and saved keywords are gone.
 
-   *Service → Variables → Volumes → New Volume*, mount path `/app/.wrangler`.
+   _Service → Variables → Volumes → New Volume_, mount path `/app/.wrangler`.
 
-3. **Set variables.** *Service → Variables*:
+3. **Set variables.** _Service → Variables_:
 
-   | Variable | Required | Notes |
-   |---|---|---|
-   | `DATAFORSEO_API_KEY` | yes | base64 of `login:password` — see the [key guide](./DATAFORSEO_API_KEY.md) |
-   | `SELFHOST_BASIC_AUTH_USER` | strongly recommended | see [Protect the deployment](#protect-the-deployment) |
-   | `SELFHOST_BASIC_AUTH_PASSWORD` | strongly recommended | |
-   | `ALLOWED_HOST` | yes, once you have a domain | hostnames the app will answer on, comma-separated — e.g. `seo-agent-production.up.railway.app,seo.example.com` |
-   | `OPENROUTER_API_KEY` | optional | enables SAM, the in-app chat agent |
-   | `OPENROUTER_MODEL` | optional | overrides the default model |
-   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `BETTER_AUTH_SECRET` | optional | Search Console and GA4 — see [`SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md`](./SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md) |
+   | Variable                                                           | Required                    | Notes                                                                                                           |
+   | ------------------------------------------------------------------ | --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+   | `DATAFORSEO_API_KEY`                                               | yes                         | base64 of `login:password` — see the [key guide](./DATAFORSEO_API_KEY.md)                                       |
+   | `SELFHOST_BASIC_AUTH_USER`                                         | strongly recommended        | see [Protect the deployment](#protect-the-deployment)                                                           |
+   | `SELFHOST_BASIC_AUTH_PASSWORD`                                     | strongly recommended        |                                                                                                                 |
+   | `ALLOWED_HOST`                                                     | yes, once you have a domain | hostnames the app will answer on, comma-separated — e.g. `seo-agent-production.up.railway.app,seo.example.com`  |
+   | `OPENROUTER_API_KEY`                                               | optional                    | enables SAM, the in-app chat agent                                                                              |
+   | `OPENROUTER_MODEL`                                                 | optional                    | overrides the default model                                                                                     |
+   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `BETTER_AUTH_SECRET` | optional                    | Search Console and GA4 — see [`SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md`](./SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md) |
 
    `PORT` is injected by Railway; leave it unset. `AUTH_MODE`, `CLOUDFLARE_INCLUDE_PROCESS_ENV` and the telemetry opt-outs are baked into the image and need no entry here.
 
-4. **Generate a domain.** *Service → Settings → Networking → Generate Domain*, then put that hostname in `ALLOWED_HOST` and redeploy. Vite's preview server rejects requests for hostnames it was not told about, so a missing `ALLOWED_HOST` shows up as a blocked-host error rather than the app. To serve your own domain instead, see [Use your own domain](#use-your-own-domain).
+4. **Generate a domain.** _Service → Settings → Networking → Generate Domain_, then put that hostname in `ALLOWED_HOST` and redeploy. Vite's preview server rejects requests for hostnames it was not told about, so a missing `ALLOWED_HOST` shows up as a blocked-host error rather than the app. To serve your own domain instead, see [Use your own domain](#use-your-own-domain).
 
 The first deploy runs migrations and a full build inside the container and takes several minutes; `railway.json` allows 900 seconds for the health check to pass. Later deploys reuse the previous build when no build-relevant variable changed.
 
@@ -39,13 +39,13 @@ The first deploy runs migrations and a full build inside the container and takes
 
 Railway serves the app on a `*.up.railway.app` subdomain by default. Moving it to your own domain is two changes — one at Railway, one in the app's variables — and the second is the one people forget.
 
-1. **Add the domain at Railway.** *Service → Settings → Networking → Custom Domain*, enter the hostname you want (`seo.example.com`). Railway shows a CNAME target that looks like `abc123.up.railway.app`.
+1. **Add the domain at Railway.** _Service → Settings → Networking → Custom Domain_, enter the hostname you want (`seo.example.com`). Railway shows a CNAME target that looks like `abc123.up.railway.app`.
 
 2. **Create the DNS record at your registrar.**
 
-   | Record | Name | Value |
-   |---|---|---|
-   | CNAME | `seo` (the subdomain) | the target Railway showed you |
+   | Record | Name                  | Value                         |
+   | ------ | --------------------- | ----------------------------- |
+   | CNAME  | `seo` (the subdomain) | the target Railway showed you |
 
    A subdomain is the straightforward case. For an apex/root domain (`example.com` with no subdomain) your DNS provider has to support CNAME flattening or ALIAS records — Cloudflare, Netlify DNS and Route 53 do; many registrars do not. If yours does not, use a subdomain.
 
@@ -62,7 +62,6 @@ Railway serves the app on a `*.up.railway.app` subdomain by default. Moving it t
    Saving the variable redeploys the service. Once you are happy on the new domain you can drop the Railway subdomain from the list.
 
 4. **Re-point anything that hardcoded the old URL:**
-
    - Google OAuth redirect URIs, if you use Search Console or GA4 — add `https://seo.example.com/api/gsc/oauth/callback` and `.../api/ga4/oauth/callback` to your OAuth client (see [`SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md`](./SELF_HOSTING_GOOGLE_SEARCH_CONSOLE.md)). Google matches these exactly — scheme, host and no trailing slash.
    - `SEO_AGENT_MCP_URL` on any machine running the Claude Code plugin.
    - Audit share links already handed out: those are path-based (`/r/<token>`), so they keep working on whichever hostname the recipient uses, as long as it is in `ALLOWED_HOST`.
@@ -96,7 +95,7 @@ Push to the branch the service tracks; Railway rebuilds and redeploys. Database 
 
 `/api/health` reports configuration and database status without auth, so `curl https://your-host/api/health` is the first thing to check. Startup validation (the preflight) prints to the deploy logs before the build and names the exact variable when something is missing.
 
-**Data disappeared after a deploy.** The volume is missing or mounted somewhere other than `/app/.wrangler`. Check *Service → Volumes*.
+**Data disappeared after a deploy.** The volume is missing or mounted somewhere other than `/app/.wrangler`. Check _Service → Volumes_.
 
 **"Blocked request" / invalid host.** `ALLOWED_HOST` does not match the hostname you are visiting.
 

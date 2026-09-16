@@ -13,6 +13,7 @@ The plugin has two halves. The MCP-backed skills read live SEO data from this ap
 - Shell scripts and Dockerfiles are LF (`.gitattributes`); keep it that way.
 
 ## Commands
+
 - `pnpm dev` — run locally on port 3001 (`pnpm run db:migrate:local` once first).
 - `pnpm run build` — vite build + `tsc --noEmit`; `pnpm lint`; `pnpm test`.
 - `pnpm sync-plugin-skills` after editing anything in `.agents/skills`, and add new skills to the `skills` array in `scripts/sync-plugin-skills.mjs`.
