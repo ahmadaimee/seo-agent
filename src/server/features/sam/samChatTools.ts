@@ -36,18 +36,20 @@ import {
   getSearchOpportunitiesTool,
 } from "@/server/mcp/tools/google-analytics-tools";
 import {
-  findSerpCompetitorsTool,
   getGoogleBusinessQuestionsTool,
-  getKeywordMetricsTool,
   getLocalSerpResultsTool,
-  getRankedKeywordsTool,
   searchLocalBusinessesTool,
+} from "@/server/mcp/tools/dataforseo-local-search-tools";
+import {
+  findSerpCompetitorsTool,
+  getKeywordMetricsTool,
+  getRankedKeywordsTool,
 } from "@/server/mcp/tools/dataforseo-research-tools";
+import { getLocalRankGridTool } from "@/server/mcp/tools/local-rank-grid-tools";
 import {
   getBusinessProfileTool,
   getBusinessReviewsTool,
   getBusinessUpdatesTool,
-  getLocalRankGridTool,
   listBusinessCategoriesTool,
 } from "@/server/mcp/tools/local-seo-tools";
 import { researchKeywordsTool } from "@/server/mcp/tools/research-keywords";
