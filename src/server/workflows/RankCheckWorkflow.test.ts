@@ -104,7 +104,9 @@ describe("rank check workflow credit ceiling", () => {
             devices: "desktop",
             serpDepth: 10,
             trigger: "manual",
-            maxCostCredits: 12,
+            // Approved for 4 keywords x $0.002 live = 2 credits each -> 8.
+            // The reloaded list has 5, so the run costs 10 and must be refused.
+            maxCostCredits: 8,
           },
         },
         // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- workflow steps are executed directly by the pgStep mock
@@ -132,7 +134,7 @@ describe("rank check workflow credit ceiling", () => {
       devices: "desktop",
       serpDepth: 10,
       trigger: "manual",
-      maxCostCredits: 12,
+      maxCostCredits: 8,
     });
 
     expect(result.keywords).toHaveLength(4);

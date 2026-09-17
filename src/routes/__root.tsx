@@ -148,7 +148,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <AutumnProvider>
             <QueryClientProvider client={queryClient}>
               <>
-                <PostHogBootstrap />
+                {/* Only mounted in hosted mode. useSession() inside fires a
+                    request to /api/auth regardless of whether its data is
+                    used, and the self-host Basic-auth guard answers that with
+                    a WWW-Authenticate challenge — which pops the browser's
+                    native login dialog on public pages like /r/<token>. */}
+                {isHostedClientAuthMode() ? <PostHogBootstrap /> : null}
                 {children}
                 <ExportToSheetsModal />
                 <Toaster

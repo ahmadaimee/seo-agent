@@ -22,14 +22,14 @@ describe("getPublicOrigin", () => {
   });
 
   it("ignores forwarded hosts when the request is already public https", () => {
-    const request = new Request("http://localhost:3010/api/oauth/consent", {
+    const request = new Request("https://localhost:3010/api/oauth/consent", {
       headers: {
         "x-forwarded-proto": "https",
         "x-forwarded-host": "evil.test",
       },
     });
 
-    expect(getPublicOrigin(request)).toBe("http://localhost:3010");
+    expect(getPublicOrigin(request)).toBe("https://localhost:3010");
   });
 });
 

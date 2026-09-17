@@ -19,7 +19,7 @@ export function ApiKeySettings() {
 
   const mcpUrl =
     typeof window === "undefined"
-      ? "http://localhost:3010/mcp"
+      ? "http://localhost:3001/mcp"
       : `${window.location.origin}/mcp`;
 
   const apiKeysQuery = useQuery({

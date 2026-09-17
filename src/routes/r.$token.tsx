@@ -142,7 +142,7 @@ function CenteredCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-base-200/40 p-4">
+    <div className="flex h-screen items-center justify-center overflow-y-auto bg-base-200/40 p-4">
       <div className="w-full max-w-sm rounded-box border border-base-300 bg-base-100 p-6">
         <div className="mb-4 flex items-center gap-2">
           <Lock className="size-4 text-base-content/50" />

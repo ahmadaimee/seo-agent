@@ -325,7 +325,7 @@ export default Alchemy.Stack(
       if (!authUrl) {
         return yield* Effect.die(
           new Error(
-            "Set BETTER_AUTH_URL (http://localhost:3010) in .env.production.",
+            "Set BETTER_AUTH_URL (http://localhost:3001) in .env.production.",
           ),
         );
       }

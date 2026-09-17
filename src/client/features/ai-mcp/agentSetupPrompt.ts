@@ -5,5 +5,5 @@ export function getAgentSetupPrompt(origin: string) {
   const instructions = installerSkill
     .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "")
     .trim();
-  return instructions.replaceAll("http://localhost:3010", origin);
+  return instructions.replaceAll("http://localhost:3001", origin);
 }

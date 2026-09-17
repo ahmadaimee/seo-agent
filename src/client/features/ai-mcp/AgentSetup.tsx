@@ -20,7 +20,7 @@ export function AgentSetup({
   const [intent, setIntent] = useState(initialIntent ?? "");
   const prompt = getAgentSetupPrompt(
     typeof window === "undefined"
-      ? "http://localhost:3010"
+      ? "http://localhost:3001"
       : window.location.origin,
   );
   const Heading = onComplete ? "h1" : "h2";
