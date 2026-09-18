@@ -4,7 +4,7 @@ import { buildCsv, type CsvValue, downloadCsv } from "@/client/lib/csv";
 import { downloadFile } from "@/client/lib/download";
 import { exportTableToSheets } from "@/client/lib/exportToSheets";
 
-const ISSUES_HEADERS = ["Severity", "Issue", "URL", "Details", "How To Fix"];
+const ISSUES_HEADERS = ["Severity", "Issue", "URL", "Details"];
 
 function issuesRows(issues: AuditResultsData["issues"]): CsvValue[][] {
   return issues.map((issue) => {
@@ -14,7 +14,6 @@ function issuesRows(issues: AuditResultsData["issues"]): CsvValue[][] {
       descriptor?.title ?? issue.issueType,
       issue.pageUrl,
       issue.detailsJson ?? "",
-      descriptor?.howToFix ?? "",
     ];
   });
 }
@@ -34,7 +33,6 @@ export function exportIssues(
         details: issue.detailsJson
           ? (JSON.parse(issue.detailsJson) as unknown)
           : null,
-        howToFix: descriptor?.howToFix ?? null,
       };
     });
     downloadFile(
