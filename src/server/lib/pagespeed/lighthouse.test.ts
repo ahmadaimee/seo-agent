@@ -170,19 +170,17 @@ describe("fetchPagespeedLighthouse", () => {
   it("reports a quota rejection and points at the API key", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn<typeof fetch>()
-        .mockResolvedValue(
-          Response.json(
-            {
-              error: {
-                message: "Quota exceeded",
-                status: "RESOURCE_EXHAUSTED",
-              },
+      vi.fn<typeof fetch>().mockResolvedValue(
+        Response.json(
+          {
+            error: {
+              message: "Quota exceeded",
+              status: "RESOURCE_EXHAUSTED",
             },
-            { status: 429 },
-          ),
+          },
+          { status: 429 },
         ),
+      ),
     );
 
     await expect(

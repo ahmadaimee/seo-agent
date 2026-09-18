@@ -7,10 +7,10 @@ Lighthouse and returns the same report, for free.
 
 ## Configuration
 
-| Variable | Values | Default |
-| --- | --- | --- |
+| Variable              | Values                      | Default                                                             |
+| --------------------- | --------------------------- | ------------------------------------------------------------------- |
 | `LIGHTHOUSE_PROVIDER` | `pagespeed` \| `dataforseo` | `pagespeed` when `PAGESPEED_API_KEY` is set, otherwise `dataforseo` |
-| `PAGESPEED_API_KEY` | a Google API key | unset |
+| `PAGESPEED_API_KEY`   | a Google API key            | unset                                                               |
 
 The default keeps existing deployments on DataForSEO until they opt in. Setting
 `LIGHTHOUSE_PROVIDER=pagespeed` works with or without a key.
