@@ -1,7 +1,44 @@
 @import "tailwindcss";
 
+/* Self-hosted so the app makes no third-party request for a font. Latin
+   subsets only: four faces, ~80KB total. IBM Plex was drawn for technical
+   products — it holds up at the small sizes this app's tables live at, and
+   its figures are properly tabular, which matters more here than novelty. */
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/fonts/ibm-plex-sans-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --container-8xl: 88rem;
+  --font-sans:
+    "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
 :root {
@@ -25,28 +62,42 @@
   default: true;
   prefersdark: false;
   color-scheme: light;
-  --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(97% 0 0);
-  --color-base-300: oklch(92% 0 0);
-  --color-base-content: oklch(20% 0 0);
-  --color-primary: oklch(50% 0.12 262);
-  --color-primary-content: oklch(100% 0 0);
-  --color-secondary: oklch(55% 0.15 145);
-  --color-secondary-content: oklch(100% 0 0);
-  --color-accent: oklch(50% 0.12 262);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(25% 0 0);
-  --color-neutral-content: oklch(100% 0 0);
-  --color-info: oklch(70% 0.15 230);
-  --color-info-content: oklch(100% 0 0);
-  --color-success: oklch(65% 0.18 145);
-  --color-success-content: oklch(100% 0 0);
-  --color-warning: oklch(80% 0.15 80);
-  --color-warning-content: oklch(100% 0 0);
-  --color-error: oklch(65% 0.2 25);
-  --color-error-content: oklch(100% 0 0);
-  --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
+  /* Chrome is near-achromatic on purpose: in a diagnostic tool saturated
+     colour is data, so it is spent on severity, score and trend and almost
+     nowhere else. The neutrals carry a trace of blue (chroma .004) rather
+     than sitting at chroma 0, which reads as ink on paper instead of grey. */
+  --color-base-100: oklch(99.4% 0.002 265);
+  --color-base-200: oklch(97.2% 0.004 265);
+  --color-base-300: oklch(91.5% 0.006 265);
+  --color-base-content: oklch(24% 0.02 266);
+  /* Violet 288 is picked by constraint, not taste: the accent must never be
+     mistaken for a severity signal, and 288 is the one wide gap between
+     error (27), warning (72), success (148) and info (252). */
+  --color-primary: oklch(52% 0.18 288);
+  --color-primary-content: oklch(99% 0.002 288);
+  --color-secondary: oklch(38% 0.13 288);
+  --color-secondary-content: oklch(99% 0.002 288);
+  --color-accent: oklch(52% 0.18 288);
+  --color-accent-content: oklch(99% 0.002 288);
+  --color-neutral: oklch(27% 0.02 266);
+  --color-neutral-content: oklch(99% 0.002 265);
+  /* Info is deliberately desaturated. A real audit carries ~19 info issues
+     against ~5 critical; at the old bright cyan the advisory chips were more
+     luminous than the alarms and won the page. Info recedes now. */
+  --color-info: oklch(55% 0.045 252);
+  --color-info-content: oklch(99% 0.002 252);
+  --color-success: oklch(58% 0.15 148);
+  --color-success-content: oklch(99% 0.002 148);
+  /* Amber on white text failed contrast at every size. Dark content on the
+     amber fixes it without dulling the signal. */
+  --color-warning: oklch(76% 0.15 72);
+  --color-warning-content: oklch(26% 0.05 72);
+  --color-error: oklch(55% 0.21 27);
+  --color-error-content: oklch(99% 0.002 27);
+  /* Three distinct steps, so radius encodes scale: chips, then controls,
+     then panels — rather than one rounding applied to everything. */
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
   --radius-box: 0.75rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
@@ -60,28 +111,31 @@
   name: "seoagent-dark";
   prefersdark: true;
   color-scheme: dark;
-  --color-base-100: oklch(18% 0 0);
-  --color-base-200: oklch(12% 0 0);
-  --color-base-300: oklch(27% 0 0);
-  --color-base-content: oklch(92% 0 0);
-  --color-primary: oklch(66% 0.12 262);
-  --color-primary-content: oklch(100% 0 0);
-  --color-secondary: oklch(60% 0.15 145);
-  --color-secondary-content: oklch(100% 0 0);
-  --color-accent: oklch(66% 0.12 262);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(85% 0 0);
-  --color-neutral-content: oklch(20% 0 0);
-  --color-info: oklch(70% 0.15 230);
-  --color-info-content: oklch(100% 0 0);
-  --color-success: oklch(65% 0.18 145);
-  --color-success-content: oklch(100% 0 0);
-  --color-warning: oklch(80% 0.15 80);
-  --color-warning-content: oklch(100% 0 0);
-  --color-error: oklch(65% 0.2 25);
-  --color-error-content: oklch(100% 0 0);
-  --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
+  /* Same rule as light: ink carries a trace of blue, and saturation is
+     reserved for signal. base-200 stays darker than the base-100 panel, the
+     relationship the button overrides further down depend on. */
+  --color-base-100: oklch(19% 0.012 266);
+  --color-base-200: oklch(14% 0.012 266);
+  --color-base-300: oklch(27% 0.014 266);
+  --color-base-content: oklch(93% 0.006 265);
+  --color-primary: oklch(70% 0.16 288);
+  --color-primary-content: oklch(16% 0.03 288);
+  --color-secondary: oklch(58% 0.14 288);
+  --color-secondary-content: oklch(99% 0.002 288);
+  --color-accent: oklch(70% 0.16 288);
+  --color-accent-content: oklch(16% 0.03 288);
+  --color-neutral: oklch(88% 0.006 265);
+  --color-neutral-content: oklch(19% 0.012 266);
+  --color-info: oklch(64% 0.045 252);
+  --color-info-content: oklch(14% 0.012 252);
+  --color-success: oklch(68% 0.15 148);
+  --color-success-content: oklch(16% 0.03 148);
+  --color-warning: oklch(78% 0.15 72);
+  --color-warning-content: oklch(24% 0.05 72);
+  --color-error: oklch(65% 0.19 27);
+  --color-error-content: oklch(15% 0.03 27);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.375rem;
   --radius-box: 0.75rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
@@ -93,10 +147,43 @@
 html,
 body {
   @apply m-0 bg-base-200;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
   overflow: hidden;
+}
+
+/* Headings tighten as they grow; body text does not. Plex sets a little wide
+   at display sizes, and negative tracking is what keeps a page title from
+   reading as a banner. */
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+h1 {
+  letter-spacing: -0.025em;
+}
+
+/* Figures must line up column-to-column. Every number in this app sits in a
+   table, a score or a metric, so the comparison is vertical and proportional
+   figures break it. */
+table,
+.stat-value,
+.font-mono,
+[class*="tabular"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mono is for strings a reader has to inspect character by character — URLs,
+   tokens, IDs — not for decorating small labels. */
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
 }
 
 /* Prevent Safari mobile from zooming on input focus (requires 16px minimum) */

@@ -55,6 +55,13 @@ declare namespace Cloudflare {
     // DataForSEO API Basic auth value (base64 of login:password)
     DATAFORSEO_API_KEY: string;
 
+    // Which provider runs Lighthouse for site audits. Defaults to "pagespeed"
+    // when PAGESPEED_API_KEY is set, otherwise "dataforseo" (billed).
+    LIGHTHOUSE_PROVIDER?: "pagespeed" | "dataforseo";
+    // Optional Google API key for PageSpeed Insights v5. PSI is free either
+    // way; a key raises the quota from a very low anonymous rate limit.
+    PAGESPEED_API_KEY?: string;
+
     // OpenRouter API key for the SAM in-app chat agent.
     OPENROUTER_API_KEY?: string;
     // Optional OpenRouter model slug override (defaults in openrouter.ts).

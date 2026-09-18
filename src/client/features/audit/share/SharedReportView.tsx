@@ -12,6 +12,12 @@ import {
   ScreenshotThumbnail,
   screenshotUrl,
 } from "@/client/features/audit/screenshot";
+import {
+  computeAverageResponseMs,
+  formatScore,
+  scoreClass,
+  summarizeLighthouse,
+} from "@/client/features/audit/results/resultStats";
 import { getIssueDescriptor } from "@/shared/audit-issues";
 import type { SharedAuditReport } from "@/client/features/audit/share/types";
 
@@ -53,6 +59,15 @@ export function SharedReportView({
     }
     return counts;
   }, [issues]);
+
+  const lighthouseSummary = useMemo(
+    () => summarizeLighthouse(lighthouse),
+    [lighthouse],
+  );
+  const averageResponseMs = useMemo(
+    () => computeAverageResponseMs(pages),
+    [pages],
+  );
 
   const tabs: SharedTab[] = hasPerformance
     ? ["issues", "pages", "performance"]
@@ -104,6 +119,34 @@ export function SharedReportView({
             <SummaryStat label="Notices" value={severityCounts.info} />
             <SummaryStat label="Pages" value={pages.length} />
           </dl>
+
+          {/* The performance row only appears when Lighthouse actually ran.
+              An audit with Lighthouse disabled would otherwise show a row of
+              dashes, which reads as "your site scored nothing" rather than
+              "this was not measured". */}
+          {lighthouseSummary.tested > 0 && (
+            <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <SummaryStat
+                label="Performance"
+                value={formatScore(lighthouseSummary.avgPerformance)}
+                tone={scoreClass(lighthouseSummary.avgPerformance)}
+              />
+              <SummaryStat
+                label="SEO"
+                value={formatScore(lighthouseSummary.avgSeo)}
+                tone={scoreClass(lighthouseSummary.avgSeo)}
+              />
+              <SummaryStat
+                label="Accessibility"
+                value={formatScore(lighthouseSummary.avgAccessibility)}
+                tone={scoreClass(lighthouseSummary.avgAccessibility)}
+              />
+              <SummaryStat
+                label="Avg response"
+                value={`${averageResponseMs}ms`}
+              />
+            </dl>
+          )}
         </div>
       </header>
 
@@ -152,7 +195,8 @@ function SummaryStat({
   tone,
 }: {
   label: string;
-  value: number;
+  /** Counts arrive as numbers; scores and durations as pre-formatted strings. */
+  value: number | string;
   tone?: string;
 }) {
   return (

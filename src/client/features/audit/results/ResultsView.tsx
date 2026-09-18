@@ -6,7 +6,11 @@ import {
   exportPerformance,
 } from "@/client/features/audit/results/export";
 import type { AuditResultsData } from "@/client/features/audit/results/types";
-import { isLighthouseFailure } from "@/client/features/audit/results/AuditResultsTableFilterLogic";
+import {
+  computeAverageResponseMs,
+  scoreClass,
+  summarizeLighthouse,
+} from "@/client/features/audit/results/resultStats";
 import {
   IssuesView,
   resolveIssueSeverity,
@@ -172,42 +176,15 @@ function useResultStats(
   pages: AuditResultsData["pages"],
   lighthouse: AuditResultsData["lighthouse"],
 ) {
-  const averageResponseMs = useMemo(() => {
-    if (pages.length === 0) return 0;
-    const total = pages.reduce(
-      (sum: number, page: AuditResultsData["pages"][number]) =>
-        sum + (page.responseTimeMs ?? 0),
-      0,
-    );
-    return Math.round(total / pages.length);
-  }, [pages]);
+  const averageResponseMs = useMemo(
+    () => computeAverageResponseMs(pages),
+    [pages],
+  );
 
-  const lighthouseSummary = useMemo(() => {
-    const failed = lighthouse.filter(
-      (row: AuditResultsData["lighthouse"][number]) => isLighthouseFailure(row),
-    ).length;
-    const successful = lighthouse.filter(
-      (row: AuditResultsData["lighthouse"][number]) =>
-        !isLighthouseFailure(row),
-    );
-    const averageScore = (
-      key: "performanceScore" | "seoScore" | "accessibilityScore",
-    ) => {
-      const values = successful
-        .map((row: AuditResultsData["lighthouse"][number]) => row[key])
-        .filter((value: number | null): value is number => value != null);
-      if (values.length === 0) return null;
-      const total = values.reduce((sum: number, value) => sum + value, 0);
-      return Math.round(total / values.length);
-    };
-
-    return {
-      failed,
-      avgPerformance: averageScore("performanceScore"),
-      avgSeo: averageScore("seoScore"),
-      avgAccessibility: averageScore("accessibilityScore"),
-    };
-  }, [lighthouse]);
+  const lighthouseSummary = useMemo(
+    () => summarizeLighthouse(lighthouse),
+    [lighthouse],
+  );
 
   return { averageResponseMs, lighthouseSummary };
 }
@@ -412,11 +389,4 @@ function SeverityCount({
       {count}
     </span>
   );
-}
-
-function scoreClass(score: number | null) {
-  if (score == null) return "";
-  if (score >= 90) return "text-success";
-  if (score >= 50) return "text-warning";
-  return "text-error";
 }

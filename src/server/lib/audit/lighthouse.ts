@@ -1,6 +1,10 @@
 import { detectUrlTemplate, canonicalUrlKey } from "./url-utils";
 import type { BillingCustomerContext } from "@/server/billing/subscription";
 import { createDataforseoClient } from "@/server/lib/dataforseo";
+import {
+  fetchPagespeedLighthouse,
+  resolveLighthouseProvider,
+} from "@/server/lib/pagespeed/lighthouse";
 import type { LighthouseResult, LighthouseStrategy } from "./types";
 import { decodeImageDataUri, putBytesToR2, putTextToR2 } from "@/server/lib/r2";
 
@@ -60,12 +64,17 @@ export async function fetchLighthouseResult(
   strategy: "mobile" | "desktop",
   billingCustomer: BillingCustomerContext,
 ): Promise<LighthouseFetchResult> {
-  const dataforseo = createDataforseoClient(billingCustomer);
   try {
-    const { screenshot, ...payload } = await dataforseo.lighthouse.live({
-      url,
-      strategy,
-    });
+    // A PageSpeed Insights failure is NEVER retried on DataForSEO: falling
+    // back would spend credits the operator opted out of. Either provider's
+    // failure lands in the catch below and surfaces on the audit row.
+    const { screenshot, ...payload } =
+      (await resolveLighthouseProvider()) === "pagespeed"
+        ? await fetchPagespeedLighthouse({ url, strategy })
+        : await createDataforseoClient(billingCustomer).lighthouse.live({
+            url,
+            strategy,
+          });
 
     return {
       result: {

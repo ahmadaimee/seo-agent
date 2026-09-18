@@ -76,6 +76,10 @@ Railway issues and renews the TLS certificate itself; there is nothing to config
 
 **The site loads but Google sign-in fails with `redirect_uri_mismatch`.** Step 4 — the new origin is not registered on the OAuth client.
 
+## Cut the biggest DataForSEO cost
+
+Site audits run Lighthouse on every sampled page, mobile and desktop — the largest single source of credit spend. Set `LIGHTHOUSE_PROVIDER=pagespeed` (and, recommended, a free `PAGESPEED_API_KEY`) to run it on Google's PageSpeed Insights API instead, at no cost. PSI cannot reach private or localhost URLs, and there is deliberately no fallback to DataForSEO. See [`LIGHTHOUSE_PAGESPEED.md`](./LIGHTHOUSE_PAGESPEED.md).
+
 ## Protect the deployment
 
 S.E.O Agent runs in `AUTH_MODE=local_noauth`: there is no sign-in, and anyone who reaches the URL has full access to your projects and your DataForSEO spend. A Railway domain is public.
