@@ -7,7 +7,7 @@ The plugin has two halves. The MCP-backed skills read live SEO data from this ap
 ## Rules
 
 - Self-host only. `AUTH_MODE=local_noauth` is the supported mode; hosted/billing code paths stay disabled. Never add telemetry or phone-home calls.
-- Every SEO data call goes through `src/server/lib/dataforseo/`; nothing else talks to external SEO providers.
+- Every third-party SEO *provider* call goes through `src/server/lib/dataforseo/`; nothing else talks to a paid SEO vendor. First-party Google APIs are the documented exception and live in their own modules: `gscClient.ts`, `ga4Client.ts`, and `src/server/lib/pagespeed/` (free PageSpeed Insights Lighthouse, selected by `LIGHTHOUSE_PROVIDER`). Nothing outside `dataforseo/` may spend credits, and no free path may ever fall back to a billed one.
 - Do not rename the `seo_agent_audit` worker/environment or the `DB` binding without updating `wrangler.jsonc`, `wrangler.audit.jsonc`, `vite.config.ts`, `alchemy.run.ts` and `docker-entrypoint.sh` together.
 - Railway is the deployment target: `railway.json` builds `Dockerfile.selfhost`, so that file and `docker-entrypoint.sh` are production code, not local convenience. There is no Compose setup — local runs use `pnpm dev`.
 - Shell scripts and Dockerfiles are LF (`.gitattributes`); keep it that way.

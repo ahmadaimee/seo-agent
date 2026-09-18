@@ -14,7 +14,7 @@ type PreflightLevel = "ok" | "info" | "warn" | "fail";
 
 type PreflightItem = {
   // Stable identifier shared with /api/health's check map.
-  key: "auth" | "dataforseo" | "gsc" | "ai" | "runtime";
+  key: "auth" | "dataforseo" | "lighthouse" | "gsc" | "ai" | "runtime";
   name: string;
   level: PreflightLevel;
   message: string;
@@ -153,6 +153,46 @@ function checkDataForSeo(env: EnvRecord, items: PreflightItem[]): void {
   });
 }
 
+// Which provider runs Lighthouse on audited pages. This is the single biggest
+// source of DataForSEO spend in an audit (one call per sampled page, per
+// strategy), so the operator is told plainly whether it is billable.
+function checkLighthouseProvider(env: EnvRecord, items: PreflightItem[]): void {
+  const configured = get(env, "LIGHTHOUSE_PROVIDER");
+  const apiKey = get(env, "PAGESPEED_API_KEY");
+
+  if (configured && configured !== "pagespeed" && configured !== "dataforseo") {
+    items.push({
+      key: "lighthouse",
+      name: "LIGHTHOUSE_PROVIDER",
+      level: "fail",
+      message: `"${configured}" is not a valid LIGHTHOUSE_PROVIDER. Valid values: pagespeed, dataforseo.`,
+    });
+    return;
+  }
+
+  const provider = configured ?? (apiKey ? "pagespeed" : "dataforseo");
+
+  if (provider === "dataforseo") {
+    items.push({
+      key: "lighthouse",
+      name: "Lighthouse provider",
+      level: "info",
+      message:
+        "dataforseo — BILLABLE: every sampled audit page costs DataForSEO credits. Set LIGHTHOUSE_PROVIDER=pagespeed (optionally with PAGESPEED_API_KEY) to use Google's free PageSpeed Insights API instead.",
+    });
+    return;
+  }
+
+  items.push({
+    key: "lighthouse",
+    name: "Lighthouse provider",
+    level: apiKey ? "ok" : "warn",
+    message: apiKey
+      ? "pagespeed — free Google PageSpeed Insights, with PAGESPEED_API_KEY set (~25k requests/day). No DataForSEO credits are spent on Lighthouse."
+      : "pagespeed — free Google PageSpeed Insights, but PAGESPEED_API_KEY is not set, so the low anonymous rate limit applies and audits will see failed Lighthouse rows. There is no fallback to DataForSEO.",
+  });
+}
+
 function checkOptionalFeatures(env: EnvRecord, items: PreflightItem[]): void {
   const clientId = get(env, "GOOGLE_CLIENT_ID");
   const clientSecret = get(env, "GOOGLE_CLIENT_SECRET");
@@ -220,6 +260,7 @@ export function runSelfhostChecks(env: EnvRecord): PreflightItem[] {
   const items: PreflightItem[] = [];
   checkAuthMode(env, items);
   checkDataForSeo(env, items);
+  checkLighthouseProvider(env, items);
   checkOptionalFeatures(env, items);
   return items;
 }

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { LIGHTHOUSE_CATEGORIES } from "@/shared/lighthouse";
 
-export type RawLighthouseAudit = {
+type RawLighthouseAudit = {
   title?: string;
   description?: string;
   score?: number | null;
@@ -18,7 +18,7 @@ export type RawLighthouseAudit = {
   };
 };
 
-export type RawLighthouseCategory = {
+type RawLighthouseCategory = {
   score?: number | null;
   auditRefs?: Array<{
     id?: string;
@@ -58,7 +58,10 @@ const storedLighthouseIssueSchema = z.object({
 
 export const storedLighthousePayloadSchema = z.object({
   version: z.literal(2),
-  source: z.literal("dataforseo-lighthouse"),
+  // Which provider ran Lighthouse. Both resell/return the same raw report, so
+  // the stored shape is identical; the tag only records provenance (and cost,
+  // which is always null on the free PageSpeed Insights path).
+  source: z.enum(["dataforseo-lighthouse", "pagespeed-lighthouse"]),
   hasIssueDetails: z.boolean(),
   metadata: z.object({
     requestedUrl: z.string(),
@@ -97,7 +100,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export function scoreToPercent(
+function scoreToPercent(
   score: number | null | undefined,
 ): number | null {
   if (typeof score !== "number" || Number.isNaN(score)) return null;
@@ -271,7 +274,7 @@ const MAX_SCREENSHOT_DATA_URI_BYTES = 4 * 1024 * 1024;
  * performance category; null when the run produced none (a failed load, or a
  * provider that strips it).
  */
-export function extractLighthouseScreenshot(
+function extractLighthouseScreenshot(
   audits: Record<string, RawLighthouseAudit>,
 ): string | null {
   const data = audits["final-screenshot"]?.details?.data;
@@ -302,4 +305,101 @@ export function buildStoredLighthouseMetrics(input: {
     ),
     serverResponseTime: buildStoredMetric(input.audits["server-response-time"]),
   };
+}
+
+export type LighthouseStrategy = "mobile" | "desktop";
+
+/**
+ * A raw Lighthouse report, as every provider returns it: DataForSEO nests it
+ * under `tasks[].result[]`, PageSpeed Insights v5 under `lighthouseResult`.
+ * Only the envelope scalars are validated — the multi-MB category/audit bodies
+ * stay as the provider's own objects, because deep-parsing them cloned the
+ * whole report a second time and pushed the audit worker over its memory limit.
+ */
+export const rawLighthouseResultSchema = z.object({
+  requestedUrl: z.string().optional(),
+  finalUrl: z.string().optional(),
+  lighthouseVersion: z.string().optional(),
+  categories: z
+    .record(z.string(), z.custom<RawLighthouseCategory>())
+    .optional(),
+  audits: z.record(z.string(), z.custom<RawLighthouseAudit>()).optional(),
+});
+
+type RawLighthouseResult = z.infer<typeof rawLighthouseResultSchema>;
+
+export function summarizeZodIssues(error: z.ZodError, maxIssues = 3): string {
+  return error.issues
+    .slice(0, maxIssues)
+    .map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join(".") : "<root>";
+      return `${path}: ${issue.message}`;
+    })
+    .join("; ");
+}
+
+/**
+ * Reduce a raw Lighthouse report into the compact stored payload, then
+ * validate that in full — the same fields the old whole-report schema checked,
+ * at kilobyte size instead of multi-megabyte. Provider-neutral: callers unwrap
+ * their own envelope first and pass the report in.
+ */
+export function buildStoredLighthousePayload(input: {
+  source: StoredLighthousePayload["source"];
+  /** Provider name used in error messages, e.g. "DataForSEO Lighthouse". */
+  providerLabel: string;
+  result: RawLighthouseResult;
+  url: string;
+  strategy: LighthouseStrategy;
+  taskId: string | null;
+  cost: number | null;
+}): StoredLighthousePayload {
+  const { result } = input;
+  const categories = result.categories ?? {};
+  const audits = result.audits ?? {};
+  const issueReport = buildStoredLighthouseIssues({ audits, categories });
+  const storedPayload: StoredLighthousePayload = {
+    version: 2,
+    source: input.source,
+    hasIssueDetails: issueReport.hasIssueDetails,
+    metadata: {
+      requestedUrl: result.requestedUrl ?? input.url,
+      finalUrl: result.finalUrl ?? input.url,
+      strategy: input.strategy,
+      fetchedAt: new Date().toISOString(),
+      lighthouseVersion: result.lighthouseVersion ?? null,
+      taskId: input.taskId,
+      cost: input.cost,
+    },
+    scores: {
+      performance: scoreToPercent(categories.performance?.score),
+      accessibility: scoreToPercent(categories.accessibility?.score),
+      "best-practices": scoreToPercent(categories["best-practices"]?.score),
+      seo: scoreToPercent(categories.seo?.score),
+    },
+    metrics: buildStoredLighthouseMetrics({ audits }),
+    issues: issueReport.issues,
+    screenshot: extractLighthouseScreenshot(audits),
+  };
+
+  const allScoresMissing = Object.values(storedPayload.scores).every(
+    (score) => score == null,
+  );
+  if (allScoresMissing) {
+    throw new Error(
+      `${input.providerLabel} returned no category scores for ${storedPayload.metadata.finalUrl}`,
+    );
+  }
+
+  // Without this, an off-spec provider field (a numeric audit title, say) would
+  // be stored and then fail to parse on read, silently blanking the page's
+  // whole Lighthouse view instead of failing the check.
+  const validated = storedLighthousePayloadSchema.safeParse(storedPayload);
+  if (!validated.success) {
+    throw new Error(
+      `${input.providerLabel} returned an invalid report: ${summarizeZodIssues(validated.error)}`,
+    );
+  }
+
+  return storedPayload;
 }
