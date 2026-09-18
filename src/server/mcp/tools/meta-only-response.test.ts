@@ -14,6 +14,7 @@ vi.mock("cloudflare:workers", () => ({
 import * as addRankTrackingKeywords from "./add-rank-tracking-keywords";
 import * as createProject from "./create-project";
 import * as createRankTracker from "./create-rank-tracker";
+import * as dataforseoLocalSearchTools from "./dataforseo-local-search-tools";
 import * as dataforseoResearchTools from "./dataforseo-research-tools";
 import * as estimateRankTrackerCost from "./estimate-rank-tracker-cost";
 import * as getBacklinksOverview from "./get-backlinks-overview";
@@ -25,6 +26,7 @@ import * as getSerpResults from "./get-serp-results";
 import * as googleAnalyticsTools from "./google-analytics-tools";
 import * as listProjects from "./list-projects";
 import * as listSavedKeywords from "./list-saved-keywords";
+import * as localRankGridTools from "./local-rank-grid-tools";
 import * as localSeoTools from "./local-seo-tools";
 import * as projectContext from "./project-context";
 import * as removeRankTrackingKeywords from "./remove-rank-tracking-keywords";
@@ -39,6 +41,7 @@ const toolExports: Record<string, unknown> = {
   ...addRankTrackingKeywords,
   ...createProject,
   ...createRankTracker,
+  ...dataforseoLocalSearchTools,
   ...dataforseoResearchTools,
   ...estimateRankTrackerCost,
   ...getBacklinksOverview,
@@ -50,6 +53,7 @@ const toolExports: Record<string, unknown> = {
   ...googleAnalyticsTools,
   ...listProjects,
   ...listSavedKeywords,
+  ...localRankGridTools,
   ...localSeoTools,
   ...projectContext,
   ...removeRankTrackingKeywords,

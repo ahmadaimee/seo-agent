@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppError } from "@/server/lib/errors";
 import { objectSchema } from "@/server/mcp/output-schemas";
+import * as localSearchTools from "./dataforseo-local-search-tools";
 import * as researchTools from "./dataforseo-research-tools";
+import * as localRankGridTools from "./local-rank-grid-tools";
 import * as localSeoTools from "./local-seo-tools";
 import { getBacklinksProfileTool } from "./get-backlinks-profile";
 import { getSearchConsolePerformanceTool } from "./search-console-tools";
@@ -99,7 +101,12 @@ describe("DataForSEO research tool output schemas", () => {
   ])(
     "%s accepts typed (non-plain-object) provider rows",
     async (toolName, field) => {
-      const tools = { ...researchTools, ...localSeoTools };
+      const tools = {
+        ...researchTools,
+        ...localSearchTools,
+        ...localSeoTools,
+        ...localRankGridTools,
+      };
       const tool = Object.values(tools).find((t) => t.name === toolName);
       if (!tool) throw new Error(`tool ${toolName} not found`);
 

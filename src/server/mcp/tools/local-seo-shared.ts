@@ -14,6 +14,16 @@ const BUSINESS_DATA_MIN_RADIUS_M = 200;
 const BUSINESS_DATA_MAX_RADIUS_M = 199999;
 const BUSINESS_DATA_DEFAULT_RADIUS_KM = 10;
 
+/**
+ * Appends one DataForSEO filter condition, inserting the "and" joiner the
+ * provider expects between clauses. Shared by the ranked-keyword and local
+ * business filter builders.
+ */
+export function pushAnd(filters: unknown[], condition: unknown[]) {
+  if (filters.length > 0) filters.push("and");
+  filters.push(condition);
+}
+
 export function formatCoordinate(value: number): string {
   return Number(value.toFixed(7)).toString();
 }
