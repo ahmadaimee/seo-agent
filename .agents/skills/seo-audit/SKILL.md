@@ -38,14 +38,39 @@ metadata:
    - `seo-sxo` -- Search experience analysis: page-type mismatch, user stories, persona scoring (always include in full audits)
    - `seo-drift` -- Drift analysis: compare against stored baseline (spawn when drift baseline exists for the URL via `"${CLAUDE_PLUGIN_ROOT}/scripts/claude-seo" run drift_history.py <url>`)
    - `seo-ecommerce` -- Product schema, marketplace intelligence (spawn when E-commerce industry detected)
-5. **Propose a starting focus area** (only when the S.E.O Agent MCP is connected and the
+4b. **Diff Search Console against the crawl** (when GSC is connected, via the
+   S.E.O Agent MCP's `get_search_console_performance` or `gsc_query.py`). Pull the
+   `page` dimension and subtract the sitemap. URLs that earn impressions but are
+   absent from the sitemap are the findings a crawl structurally cannot produce:
+
+   - **Soft 404s.** Fetch each one. A 200 that serves another page's content --
+     especially one canonicalising to the homepage -- means a route is catching
+     unknown slugs instead of 404ing. Probe it directly with an invented slug per
+     route family (`/articles/made-up-xyz`, `/products/made-up-xyz`), because one
+     route can be broken while every other route 404s correctly.
+   - **Stale pages** still served and indexed after being unpublished.
+   - **Renames.** A cluster of old URLs still drawing impressions means the site
+     recently changed its URL pattern. Check they redirect, then say so: rankings
+     in that window are in transition and must not be read as steady state.
+
+5. **Split Search Console clicks branded vs non-branded before reporting traffic
+   health.** Totals hide the finding. A site can show healthy impressions and
+   clicks while earning *zero* non-branded clicks, which is a commercial problem,
+   not a technical one, and it outranks every technical finding in the report.
+   Then take the striking-distance set (positions 8-20 with real impression
+   volume) as the keyword targets -- these are first-party and need no paid
+   volume data. When queries rank in the top 10 and still earn no clicks, say
+   which of the two causes you tested: SERP features pushing the result below
+   the fold, or a snippet that does not answer the query.
+
+6. **Propose a starting focus area** (only when the S.E.O Agent MCP is connected and the
    site is alive): one `research_keywords` call seeded from the site's actual topic, then
    pick one theme and 3 to 5 specific, low-difficulty keywords the site can realistically
    rank for, each with the page or post to make. This is a direction, not a keyword
    strategy -- hand off to `seo-keywords` for the full workflow. Skip it when the site is down.
-6. **Score** -- aggregate into SEO Health Score (0-100)
-7. **Persist audit artifacts** -- write all outputs under `{domain}-audit/`
-8. **Report** -- generate prioritized action plan and optional PDF/HTML report
+7. **Score** -- aggregate into SEO Health Score (0-100)
+8. **Persist audit artifacts** -- write all outputs under `{domain}-audit/`
+9. **Report** -- generate prioritized action plan and optional PDF/HTML report
 
 ## Crawl Configuration
 
@@ -274,6 +299,21 @@ artifact), do that; otherwise save the file and tell the user to open it.
 
 1. Verify every finding you plan to report against the live page HTML. Report
    nothing you have not seen evidence for.
+1b. **Measure duplication on main content, not whole-page text.** Strip `<nav>`,
+   `<header>`, `<footer>`, `<script>` and `<style>` before shingling. Shared
+   chrome is a large share of a short page, so whole-page text inflates
+   similarity and invents a duplicate-content problem that is not there -- on one
+   audit the same page set measured 33% whole-page and 9% on main content.
+   Report word counts the same way, and state which method you used. If you
+   report a whole-page figure at all, publish a control set computed identically
+   (a second page group from the same site) so the reader can tell boilerplate
+   from real overlap.
+1c. **Separate what ranks from what Google measures.** Lighthouse lab scores are
+   not a ranking input; Core Web Vitals counts only as CrUX field data. When
+   there is no CrUX record, say so and scope the finding to user experience
+   rather than rankings, and do not read CrUX absence as proof of low traffic --
+   it samples only opted-in Chrome users. The same applies to `llms.txt`, which
+   no search engine consumes: record it as hygiene, not as an SEO strength.
 2. If a crawl comes back broken or nearly empty (certificate errors, 5xx, one page
    crawled), investigate before writing. Check the certificate and redirect
    variants yourself, and search the web for the business. A dead domain often has
@@ -285,6 +325,12 @@ artifact), do that; otherwise save the file and tell the user to open it.
    anything overwhelming for the audience, and dramatic language. The reviewer may
    also flag true facts it was not given; check those against your evidence
    instead of "fixing" them.
+4. Re-verify what the reviewer disputes rather than deferring to it. A reviewer
+   is as capable of being wrong as the audit: on one pass a reviewer correctly
+   overturned a duplication finding and correctly cut an inflated severity, and
+   was wrong to call a CLS measurement a lab artifact -- re-running it three
+   times returned the identical value each time. Re-run the measurement; keep
+   what survives and drop what does not.
 
 ## Error Handling
 
@@ -295,4 +341,5 @@ artifact), do that; otherwise save the file and tell the user to open it.
 | Rate limiting (429 responses) | Back off and reduce concurrent requests. Report partial results with a note on which sections could not be completed. |
 | Timeout on large sites (500+ pages) | Cap the crawl at the timeout limit. Report findings for pages crawled and estimate total site scope. |
 | S.E.O Agent MCP not connected | Run the full local audit anyway -- crawling, rendering, technical, schema, content, images and the free backlink sources all work without it. Note in the report which sections were skipped (keyword volume, SERP positions, third-party backlink estimates, Maps grid). |
+| Search Console not connected | Say plainly that the off-page half is absent, and that step 4b (the GSC-to-sitemap diff) and the branded split could not run. Do not substitute assumptions for query data: recommend connecting GSC as the first action, since it is free and first-party. |
 | Subagent hits its `maxTurns` budget on a large site | Findings are not lost: every audit subagent writes a partial `output_dir/findings/*.md` after its first analysis pass and overwrites it with the complete findings before finishing. Read whatever findings file exists and merge it into the report, noting it may be partial. |
