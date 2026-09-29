@@ -58,7 +58,11 @@ function makePage(overrides: Partial<CrawledPageResult>): CrawledPageResult {
     imagesMissingAlt: 0,
     images: [],
     links: [HEALTHY_LINK],
-    hasStructuredData: false,
+    // Sound defaults, like ogImage above: a healthy page carries structured
+    // data and (below the top level) breadcrumbs, so these do not fire unless a
+    // test opts in by overriding them.
+    hasStructuredData: true,
+    hasBreadcrumbList: true,
     hreflangTags: [],
     isIndexable: true,
     responseTimeMs: 200,
@@ -75,6 +79,69 @@ function issueTypes(page: CrawledPageResult): string[] {
 describe("runPageReporters", () => {
   it("reports nothing for a healthy page", () => {
     expect(issueTypes(makePage({}))).toEqual([]);
+  });
+
+  it("reports missing-structured-data for an indexable page with no JSON-LD", () => {
+    expect(issueTypes(makePage({ hasStructuredData: false }))).toContain(
+      "missing-structured-data",
+    );
+  });
+
+  it("does not report missing-structured-data for a non-indexable page", () => {
+    expect(
+      issueTypes(
+        makePage({
+          hasStructuredData: false,
+          isIndexable: false,
+          robotsMeta: "noindex",
+        }),
+      ),
+    ).not.toContain("missing-structured-data");
+  });
+
+  it("reports missing-breadcrumbs below the top level with no BreadcrumbList", () => {
+    expect(
+      issueTypes(
+        makePage({
+          url: "https://example.com/blog/post",
+          hasBreadcrumbList: false,
+        }),
+      ),
+    ).toContain("missing-breadcrumbs");
+  });
+
+  it("does not report missing-breadcrumbs on a top-level page", () => {
+    expect(
+      issueTypes(
+        makePage({
+          url: "https://example.com/about",
+          hasBreadcrumbList: false,
+        }),
+      ),
+    ).not.toContain("missing-breadcrumbs");
+  });
+
+  it("does not report missing-breadcrumbs when BreadcrumbList is present", () => {
+    expect(
+      issueTypes(
+        makePage({
+          url: "https://example.com/blog/post",
+          hasBreadcrumbList: true,
+        }),
+      ),
+    ).not.toContain("missing-breadcrumbs");
+  });
+
+  it("reports deep-url-path for a deeply nested URL path", () => {
+    expect(
+      issueTypes(makePage({ url: "https://example.com/a/b/c/d/e" })),
+    ).toContain("deep-url-path");
+  });
+
+  it("does not report deep-url-path for a shallow URL path", () => {
+    expect(
+      issueTypes(makePage({ url: "https://example.com/a/b" })),
+    ).not.toContain("deep-url-path");
   });
 
   it("reports only blocked-page for a blocked fetch", () => {

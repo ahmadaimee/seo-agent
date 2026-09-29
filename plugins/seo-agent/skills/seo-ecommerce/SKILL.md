@@ -298,7 +298,7 @@ Confirmed required fields are `name`, `image`, and `offers`; use `Offer`, not `A
 | Skill | Integration Point |
 |-------|------------------|
 | **seo-schema** | Delegates Product schema generation; reuses validation logic |
-| **seo-images** | Product image audit (alt text, format, dimensions), plus `DigitalSourceType: TrainedAlgorithmicMedia` IPTC label for AI-generated product images (Merchant Center requirement) |
+| **seo-image-audit** | Product image audit (alt text, format, dimensions), plus `DigitalSourceType: TrainedAlgorithmicMedia` IPTC label for AI-generated product images (Merchant Center requirement) |
 | **seo-content** | Product description E-E-A-T and uniqueness analysis |
 | **seo-dataforseo** | Organic keyword rankings for gap analysis |
 | **seo-technical** | Core Web Vitals for product pages (LCP on hero image) |

@@ -33,7 +33,7 @@ const skills = [
   "seo-google",
   "seo-hreflang",
   "seo-image-gen",
-  "seo-images",
+  "seo-image-audit",
   "seo-keywords",
   "seo-landscape",
   "seo-link-prospecting",

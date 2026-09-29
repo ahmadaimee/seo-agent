@@ -99,7 +99,7 @@ Two operational requirements with concrete enforcement surfaces:
 
 1. **Merchant Center — AI-generated product images:** must carry IPTC
    `DigitalSourceType: TrainedAlgorithmicMedia` metadata. See
-   `skills/seo-images/SKILL.md` for the audit + injection pattern.
+   `skills/seo-image-audit/SKILL.md` for the audit + injection pattern.
 2. **AI-generated product titles and descriptions:** must be separately
    specified and labeled as AI-generated in the merchant feed.
 
@@ -128,7 +128,7 @@ and hedged). UCP audit criteria:
    — if a recommendation contradicts Google's stated position, flag it.
 3. Where a third-party claim and Google contradict, claude-seo defers to
    Google and notes the contradiction explicitly.
-4. `seo-ecommerce` and `seo-images` enforce the two operational requirements
+4. `seo-ecommerce` and `seo-image-audit` enforce the two operational requirements
    above for sites using AI to generate product content.
 
 ## Last verified

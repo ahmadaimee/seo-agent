@@ -31,6 +31,20 @@ const META_DESCRIPTION_MIN_CHARS = 70;
 const THIN_CONTENT_WORDS = 150;
 const SLOW_RESPONSE_MS = 1500;
 const DEEP_PAGE_DEPTH = 5;
+/** URL *path* segment count at which the path counts as deeply nested. */
+const DEEP_URL_PATH_SEGMENTS = 5;
+
+/**
+ * Number of path segments in a URL, e.g. https://x.com/a/b/c -> 3. Returns 0
+ * for the homepage and for URLs that do not parse (nothing to report on those).
+ */
+function urlPathDepth(rawUrl: string): number {
+  try {
+    return new URL(rawUrl).pathname.split("/").filter(Boolean).length;
+  } catch {
+    return 0;
+  }
+}
 /**
  * Facebook, LinkedIn and X all reject preview images below 200x200 and fall
  * back to a text-only card. Only checked when the page declares
@@ -202,6 +216,20 @@ export function runPageReporters(page: CrawledPageResult): DetectedIssue[] {
   }
   if (page.crawlDepth !== null && page.crawlDepth >= DEEP_PAGE_DEPTH) {
     report("deep-page", { crawlDepth: page.crawlDepth });
+  }
+  const pathDepth = urlPathDepth(page.url);
+  if (page.isIndexable && pathDepth >= DEEP_URL_PATH_SEGMENTS) {
+    report("deep-url-path", { pathDepth });
+  }
+
+  // Structured data (schema)
+  if (page.isIndexable && !page.hasStructuredData) {
+    report("missing-structured-data");
+  }
+  // Breadcrumbs only matter below the top level — the homepage and top-level
+  // pages have no hierarchy to express, so a missing breadcrumb there is noise.
+  if (page.isIndexable && pathDepth >= 2 && !page.hasBreadcrumbList) {
+    report("missing-breadcrumbs");
   }
 
   return issues;

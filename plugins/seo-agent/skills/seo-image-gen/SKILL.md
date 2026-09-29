@@ -149,7 +149,7 @@ Approximate costs:
 
 ## Cross-Skill Integration
 
-- **seo-images** (analysis) feeds into **seo-image-gen** (generation): audit results from `/seo images` identify missing or low-quality images; use those findings to drive `/seo image-gen` commands
+- **seo-image-audit** (analysis) feeds into **seo-image-gen** (generation): audit results from `/seo images` identify missing or low-quality images; use those findings to drive `/seo image-gen` commands
 - **seo-audit** spawns the seo-image-gen **agent** (not this skill) to analyze OG/social images across the site and produce a prioritized generation plan
 - **seo-schema** can consume generated images: after generation, suggest `ImageObject` schema markup pointing to the new assets
 

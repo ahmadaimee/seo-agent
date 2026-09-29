@@ -52,6 +52,7 @@ function page(
     images: [],
     links: [],
     hasStructuredData: false,
+    hasBreadcrumbList: false,
     hreflangTags: [],
     isIndexable: true,
     responseTimeMs,

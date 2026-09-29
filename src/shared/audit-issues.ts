@@ -368,6 +368,30 @@ export const AUDIT_ISSUE_TYPES = {
     howToFix:
       "Add links from higher-level pages (hubs, category pages, navigation) to flatten the path to this page.",
   },
+  "deep-url-path": {
+    severity: "info",
+    title: "Deeply nested URL path",
+    explanation:
+      "The URL path has 5 or more segments (e.g. /a/b/c/d/e/). Deep, heavily nested paths are harder for users and crawlers to reason about and often signal a flat topic buried under an over-engineered hierarchy. This is about the URL string itself, independent of how many clicks the page is from the homepage.",
+    howToFix:
+      "Flatten the URL structure where the nesting does not reflect a real hierarchy — shorter, descriptive paths (e.g. /guides/patient-billing) usually serve the same content better.",
+  },
+  "missing-structured-data": {
+    severity: "info",
+    title: "No structured data",
+    explanation:
+      "The page has no JSON-LD structured data (Schema.org). Structured data is how search engines and AI assistants understand what a page represents, and it is what makes a page eligible for rich results (FAQs, breadcrumbs, products, articles, jobs).",
+    howToFix:
+      "Add JSON-LD appropriate to the page type — for example Article/BlogPosting for posts, Product/Offer for products, FAQPage for Q&A, Organization/WebSite site-wide. Validate with Google's Rich Results Test.",
+  },
+  "missing-breadcrumbs": {
+    severity: "info",
+    title: "No breadcrumb structured data",
+    explanation:
+      "This page sits below the top level of the site but declares no BreadcrumbList structured data. Breadcrumbs give search engines the page's place in the site hierarchy and can show a breadcrumb trail in search results instead of a bare URL.",
+    howToFix:
+      "Add BreadcrumbList JSON-LD reflecting the page's real position (Home > Section > Page), and ideally show a matching visible breadcrumb trail — Google's guidelines expect the markup to reflect a breadcrumb users can see.",
+  },
 } as const satisfies Record<string, AuditIssueDescriptor>;
 
 export type AuditIssueType = keyof typeof AUDIT_ISSUE_TYPES;
