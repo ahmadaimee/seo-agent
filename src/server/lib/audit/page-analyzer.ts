@@ -132,6 +132,10 @@ export function analyzeHtml(
   let ogImageHeight: number | null = null;
   let twitterImage: string | null = null;
   let hasStructuredData = false;
+  // Whether any JSON-LD block declares a BreadcrumbList. Detected by scanning
+  // the ld+json body text (not full JSON parse) while inside such a script.
+  let hasBreadcrumbList = false;
+  let inLdJson = false;
   let googleSiteVerification: string | null = null;
   let bingSiteVerification: string | null = null;
   const hreflangTags: string[] = [];
@@ -238,6 +242,7 @@ export function analyzeHtml(
     scriptDepth += 1;
     if (attribs["type"] === "application/ld+json") {
       hasStructuredData = true;
+      inLdJson = true;
     }
     collectAnalyticsIds(attribs["src"] ?? "", analyticsIds);
   };
@@ -349,6 +354,9 @@ export function analyzeHtml(
         // Before the suppression check: the GTM snippet lives inside a
         // <script>, which is exactly the text the word count discards.
         if (scriptDepth > 0) collectAnalyticsIds(text, analyticsIds);
+        if (inLdJson && text.includes("BreadcrumbList")) {
+          hasBreadcrumbList = true;
+        }
         if (suppressDepth > 0) return;
         if (titleDepth > 0) {
           if (title !== null) title += text;
@@ -371,7 +379,10 @@ export function analyzeHtml(
           return;
         }
         if (noscriptDepth > 0) return;
-        if (name === "script" && scriptDepth > 0) scriptDepth -= 1;
+        if (name === "script" && scriptDepth > 0) {
+          scriptDepth -= 1;
+          inLdJson = false;
+        }
         if (name === "title" && titleDepth > 0) {
           titleDepth -= 1;
           if (titleDepth === 0) titleDone = true;
@@ -427,6 +438,7 @@ export function analyzeHtml(
     images,
     links: Array.from(linksByTarget.values()),
     hasStructuredData,
+    hasBreadcrumbList,
     hreflangTags,
   };
 }

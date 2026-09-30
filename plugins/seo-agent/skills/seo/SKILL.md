@@ -275,7 +275,7 @@ everything else runs on the bundled Python toolchain.
 4. **seo-content** -- E-E-A-T and content quality
 5. **seo-content-brief** -- Detailed SEO content brief generation (contributed by puneetindersingh)
 6. **seo-schema** -- Schema markup detection and generation
-7. **seo-images** -- Image optimization, SERP analysis, file optimization
+7. **seo-image-audit** -- Image optimization, SERP analysis, file optimization
 8. **seo-sitemap** -- Sitemap analysis and generation
 9. **seo-geo** -- AI Overviews / GEO optimization
 10. **seo-plan** -- Strategic planning with templates

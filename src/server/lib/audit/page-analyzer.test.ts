@@ -140,8 +140,10 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
   });
 
   let hasStructuredData = false;
-  $('script[type="application/ld+json"]').each(() => {
+  let hasBreadcrumbList = false;
+  $('script[type="application/ld+json"]').each((_, el) => {
     hasStructuredData = true;
+    if ($(el).text().includes("BreadcrumbList")) hasBreadcrumbList = true;
   });
 
   const hreflangTags: string[] = [];
@@ -193,6 +195,7 @@ function analyzeHtmlWithCheerio(html: string, pageUrl: string): PageAnalysis {
     images,
     links: Array.from(linksByTarget.values()),
     hasStructuredData,
+    hasBreadcrumbList,
     hreflangTags,
   };
 }
@@ -204,6 +207,30 @@ function expectParity(html: string) {
   const reference = analyzeHtmlWithCheerio(html, PAGE_URL);
   expect(streamed).toEqual(reference);
 }
+
+describe("analyzeHtml structured data", () => {
+  it("detects a BreadcrumbList in JSON-LD", () => {
+    const html = `<!DOCTYPE html><html><head>
+      <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[]}
+      </script></head><body><h1>Hi</h1></body></html>`;
+    const analysis = analyzeHtml(html, PAGE_URL, 200, 0);
+    expect(analysis.hasStructuredData).toBe(true);
+    expect(analysis.hasBreadcrumbList).toBe(true);
+    expectParity(html);
+  });
+
+  it("counts JSON-LD without a BreadcrumbList as structured data only", () => {
+    const html = `<!DOCTYPE html><html><head>
+      <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"Article","headline":"X"}
+      </script></head><body><h1>Hi</h1></body></html>`;
+    const analysis = analyzeHtml(html, PAGE_URL, 200, 0);
+    expect(analysis.hasStructuredData).toBe(true);
+    expect(analysis.hasBreadcrumbList).toBe(false);
+    expectParity(html);
+  });
+});
 
 describe("analyzeHtml parity with the DOM reference", () => {
   it("matches on a full, well-formed document", () => {

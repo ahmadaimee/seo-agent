@@ -110,6 +110,7 @@ export interface PageAnalysis {
 
   // Structured data
   hasStructuredData: boolean;
+  hasBreadcrumbList: boolean;
 
   // Hreflang
   hreflangTags: string[];
@@ -197,6 +198,7 @@ export interface CrawledPageResult {
   images: Array<{ src: string | null; alt: string | null }>;
   links: PageLink[];
   hasStructuredData: boolean;
+  hasBreadcrumbList: boolean;
   hreflangTags: string[];
   isIndexable: boolean;
   responseTimeMs: number;

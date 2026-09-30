@@ -69,7 +69,7 @@ Chromium, schema, content, images):
 - `seo-content`: E-E-A-T, readability, thin content, AI citation readiness.
 - `seo-content-brief`: a competitive brief for one page.
 - `seo-schema`: detect, validate and generate structured data.
-- `seo-sitemap`, `seo-images`, `seo-hreflang`, `seo-programmatic`: the specialist audits.
+- `seo-sitemap`, `seo-image-audit`, `seo-hreflang`, `seo-programmatic`: the specialist audits.
 - `seo-geo`: AI Overviews, ChatGPT and Perplexity readiness.
 - `seo-sxo`: why a well-optimized page still does not rank.
 - `seo-drift`: baseline the site, then detect regressions after a deploy.
