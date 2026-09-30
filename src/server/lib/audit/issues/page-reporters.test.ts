@@ -5,72 +5,11 @@ import {
   findRedirectChainsAndLoops,
   type SlimPage,
 } from "@/server/lib/audit/issues/multipage-checks";
-import type { CrawledPageResult, PageLink } from "@/server/lib/audit/types";
-
-const HEALTHY_LINK: PageLink = {
-  targetUrl: "https://example.com/catalog",
-  anchor: "Catalog",
-  isInternal: true,
-  isNofollow: false,
-};
-
-function makePage(overrides: Partial<CrawledPageResult>): CrawledPageResult {
-  return {
-    id: "page-1",
-    url: "https://example.com/a",
-    statusCode: 200,
-    fetchClass: "ok",
-    redirectUrl: null,
-    title: "A perfectly reasonable page title",
-    metaDescription:
-      "A reasonable meta description that says something useful about the page.",
-    canonicalUrl: null,
-    robotsMeta: null,
-    xRobotsTag: null,
-    headerCanonicalUrl: null,
-    ogTitle: null,
-    ogDescription: null,
-    // A sound default: without it every fixture would also report
-    // missing-og-image and drown the assertions in this file.
-    ogImage: "https://example.com/og.png",
-    ogImageUrl: "https://example.com/og.png",
-    ogImageAlt: null,
-    ogImageWidth: null,
-    ogImageHeight: null,
-    twitterImage: null,
-    favicons: [],
-    googleSiteVerification: null,
-    bingSiteVerification: null,
-    analyticsIds: [],
-    h1Count: 1,
-    h2Count: 0,
-    h3Count: 0,
-    h4Count: 0,
-    h5Count: 0,
-    h6Count: 0,
-    headingOrder: [1, 2, 3],
-    wordCount: 500,
-    contentHash: "abc123",
-    isHtml: true,
-    htmlBytes: 10_000,
-    rateLimited: false,
-    imagesTotal: 0,
-    imagesMissingAlt: 0,
-    images: [],
-    links: [HEALTHY_LINK],
-    // Sound defaults, like ogImage above: a healthy page carries structured
-    // data and (below the top level) breadcrumbs, so these do not fire unless a
-    // test opts in by overriding them.
-    hasStructuredData: true,
-    hasBreadcrumbList: true,
-    hreflangTags: [],
-    isIndexable: true,
-    responseTimeMs: 200,
-    crawlDepth: 1,
-    inSitemap: true,
-    ...overrides,
-  };
-}
+import type { CrawledPageResult } from "@/server/lib/audit/types";
+import {
+  HEALTHY_LINK,
+  makePage,
+} from "@/server/lib/audit/issues/page-reporters.fixtures";
 
 function issueTypes(page: CrawledPageResult): string[] {
   return runPageReporters(page).map((issue) => issue.issueType);
@@ -81,67 +20,53 @@ describe("runPageReporters", () => {
     expect(issueTypes(makePage({}))).toEqual([]);
   });
 
-  it("reports missing-structured-data for an indexable page with no JSON-LD", () => {
-    expect(issueTypes(makePage({ hasStructuredData: false }))).toContain(
-      "missing-structured-data",
-    );
-  });
-
-  it("does not report missing-structured-data for a non-indexable page", () => {
-    expect(
-      issueTypes(
-        makePage({
-          hasStructuredData: false,
-          isIndexable: false,
-          robotsMeta: "noindex",
-        }),
-      ),
-    ).not.toContain("missing-structured-data");
-  });
-
-  it("reports missing-breadcrumbs below the top level with no BreadcrumbList", () => {
-    expect(
-      issueTypes(
-        makePage({
-          url: "https://example.com/blog/post",
-          hasBreadcrumbList: false,
-        }),
-      ),
-    ).toContain("missing-breadcrumbs");
-  });
-
-  it("does not report missing-breadcrumbs on a top-level page", () => {
-    expect(
-      issueTypes(
-        makePage({
-          url: "https://example.com/about",
-          hasBreadcrumbList: false,
-        }),
-      ),
-    ).not.toContain("missing-breadcrumbs");
-  });
-
-  it("does not report missing-breadcrumbs when BreadcrumbList is present", () => {
-    expect(
-      issueTypes(
-        makePage({
-          url: "https://example.com/blog/post",
-          hasBreadcrumbList: true,
-        }),
-      ),
-    ).not.toContain("missing-breadcrumbs");
-  });
-
-  it("reports deep-url-path for a deeply nested URL path", () => {
-    expect(
-      issueTypes(makePage({ url: "https://example.com/a/b/c/d/e" })),
-    ).toContain("deep-url-path");
-  });
-
-  it("does not report deep-url-path for a shallow URL path", () => {
-    expect(
-      issueTypes(makePage({ url: "https://example.com/a/b" })),
-    ).not.toContain("deep-url-path");
+  it.each([
+    {
+      name: "missing-structured-data on an indexable page with no JSON-LD",
+      page: { hasStructuredData: false },
+      issue: "missing-structured-data",
+      present: true,
+    },
+    {
+      name: "no missing-structured-data on a non-indexable page",
+      page: { hasStructuredData: false, isIndexable: false },
+      issue: "missing-structured-data",
+      present: false,
+    },
+    {
+      name: "missing-breadcrumbs below the top level with no BreadcrumbList",
+      page: { url: "https://example.com/blog/post", hasBreadcrumbList: false },
+      issue: "missing-breadcrumbs",
+      present: true,
+    },
+    {
+      name: "no missing-breadcrumbs on a top-level page",
+      page: { url: "https://example.com/about", hasBreadcrumbList: false },
+      issue: "missing-breadcrumbs",
+      present: false,
+    },
+    {
+      name: "no missing-breadcrumbs when BreadcrumbList is present",
+      page: { url: "https://example.com/blog/post", hasBreadcrumbList: true },
+      issue: "missing-breadcrumbs",
+      present: false,
+    },
+    {
+      name: "deep-url-path for a deeply nested URL path",
+      page: { url: "https://example.com/a/b/c/d/e" },
+      issue: "deep-url-path",
+      present: true,
+    },
+    {
+      name: "no deep-url-path for a shallow URL path",
+      page: { url: "https://example.com/a/b" },
+      issue: "deep-url-path",
+      present: false,
+    },
+  ])("reports $name", ({ page, issue, present }) => {
+    const types = issueTypes(makePage(page));
+    if (present) expect(types).toContain(issue);
+    else expect(types).not.toContain(issue);
   });
 
   it("reports only blocked-page for a blocked fetch", () => {
