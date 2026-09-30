@@ -239,7 +239,7 @@ describe("crawlPage", () => {
         },
       ],
       hasStructuredData: true,
-      hasBreadcrumbList: true,
+      hasBreadcrumbList: false,
       hreflangTags: ["en"],
       isIndexable: false,
       crawlDepth: 2,
